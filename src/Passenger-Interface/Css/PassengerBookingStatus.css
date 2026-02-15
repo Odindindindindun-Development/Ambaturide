@@ -1,0 +1,677 @@
+/* Css/PassengerBookingStatus.css */
+.booking-status-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-title {
+    text-align: center;
+    margin-bottom: 30px;
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.booking-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    max-width: 1200px;
+    width: 100%;
+    min-height: 650px;
+    border: 1px solid #e0e0e0;
+}
+
+.left-section {
+    padding: 40px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* Pending State s*/
+.pending-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 30px;
+}
+
+.wait-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #000000;
+    text-align: center;
+}
+
+.status-badge-pending {
+    background: #000000;
+    color: white;
+    padding: 12px 40px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.pending-logo {
+    width: 200px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Driver Assigned State */
+.driver-assigned-header {
+    background-color: black;
+    padding: 15px 25px;
+    margin: -40px -40px 0 -40px;
+}
+
+.driver-assigned-header .section-title {
+    color: white;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.right-section {
+    padding: 40px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    color: #000000;
+    font-weight: 700;
+    border-bottom: 3px solid #22c55e;
+    padding-bottom: 10px;
+}
+
+/* Driver Profile Styles */
+.driver-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e5e5;
+}
+
+.profile-picture {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  border: 3px solid #22c55e;
+  background: transparent;
+  box-shadow: none;
+}
+
+.driver-img-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #e5e5e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.driver-details h3 {
+    margin: 0 0 8px 0;
+    color: #000000;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.driver-details p {
+    margin: 0;
+    color: #666;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Report Button Styles */
+.report-btn {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 10px !important;
+    font-size: 0.85rem;
+    font-weight: 600;
+    width: fit-content; 
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 8px;
+}
+
+.report-btn:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
+}
+
+.report-btn:active {
+    background: #991b1b;
+    transform: translateY(0);
+}
+
+.report-btn:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Vehicle Info Styles */
+.vehicle-info {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e5e5;
+}
+
+.vehicle-header h4 {
+    margin: 0 0 20px 0;
+    color: #000000;
+    font-size: 1.3rem;
+}
+
+.car-image {
+    margin-bottom: 20px;
+    max-width: 360px;
+    width: 100%;
+}
+
+.car-image-img {
+    display: block;
+    width: 100%;
+    height: 160px;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.car-img-placeholder {
+    width: 100%;
+    height: 160px;
+    background: #f5f5f5;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    margin-bottom: 15px;
+    border: 1px solid #e5e5e5;
+}
+
+/* smaller on mobile */
+@media (max-width: 640px) {
+  .car-image-img,
+  .car-img-placeholder {
+    height: 110px;
+    max-height: 140px;
+  }
+}
+
+.vehicle-row {
+
+
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.vehicle-row:last-child {
+    border-bottom: none;
+}
+
+.label {
+    font-weight: 600;
+    color: #666;
+}
+
+.value {
+    font-weight: 600;
+    color: #000000;
+}
+
+.status-indicator {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.status-badge {
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.status-badge-active {
+    background: #22c55e;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Rating Section */
+.rating-section {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e5e5;
+}
+
+.rating-section h4 {
+    margin: 0 0 15px 0;
+    color: #000000;
+    font-size: 1.3rem;
+}
+
+.stars-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.star-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.star-btn.filled {
+    color: #fbbf24;
+}
+
+.star-btn:hover {
+    transform: scale(1.2);
+}
+
+.comments-section {
+    margin-bottom: 20px;
+}
+
+.comments-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #000000;
+}
+
+.comments-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+    transition: border-color 0.3s;
+    background: white;
+}
+
+.comments-input:focus {
+    outline: none;
+    border-color: #22c55e;
+    background: #f8fff8;
+}
+
+/* Right Section Styles */
+.address-section {
+    margin-bottom: 30px;
+}
+
+.address-group {
+    margin-bottom: 25px;
+}
+
+.address-label {
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.address-value {
+    background: #f8f8f8;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border-left: 3px solid #22c55e;
+    font-size: 1rem;
+    color: #000000;
+}
+
+.trip-details {
+    margin-bottom: 30px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.detail-item {
+    background: #f8f8f8;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 3px solid #22c55e;
+}
+
+.detail-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    font-size: 1.1rem;
+    color: #000000;
+    font-weight: 600;
+}
+
+.payment-section {
+    background: #f8f8f8;
+    border-radius: 12px;
+    padding: 25px;
+    border: 1px solid #e5e5e5;
+}
+
+.payment-section h3 {
+    margin: 0 0 20px 0;
+    color: #000000;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.payment-header h4 {
+    margin: 0 0 20px 0;
+    color: #000000;
+    font-size: 1.3rem;
+}
+
+.amount-breakdown {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid #e5e5e5;
+}
+
+.breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.breakdown-row:last-child {
+    border-bottom: none;
+}
+
+.breakdown-row.total {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #000000;
+}
+
+.total-amount {
+    color: #22c55e;
+    font-weight: 700;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: auto;
+    align-items: stretch;
+}
+
+/* Cancel button styling */
+.cancel-ride-btn {
+    background: #dc2626;
+    color: #fff;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.12s ease, background 0.12s ease;
+    display: inline-block;
+    text-align: center;
+}
+
+.cancel-ride-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.cancel-ride-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    background: #b91c1c;
+}
+
+/* Home button styling */
+.home-btn {
+    background: #22c55e;
+    color: #000000;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.12s ease, background 0.12s ease;
+    text-align: center;
+}
+
+.home-btn:hover {
+    transform: translateY(-3px);
+    background: #16a34a;
+}
+
+/* Submit rating button */
+.yellow-btn {
+    background: #000000;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.12s ease;
+}
+
+.yellow-btn:hover:not(:disabled) {
+    background: #22c55e;
+    transform: translateY(-2px);
+}
+
+.yellow-btn:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+
+.rating-thanks {
+    background: #22c55e;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Avatar container */
+.profile-picture {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  border: 3px solid #22c55e;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Image inside avatar */
+.profile-picture img,
+.passenger-img,
+.summary-passenger-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border: none;
+  outline: none;
+}
+
+/* Slightly larger on wide screens */
+@media (min-width: 1200px) {
+  .profile-picture {
+    width: 100px;
+    height: 100px;
+    border-width: 3px;
+  }
+}
+
+/* Smaller on mobile */
+@media (max-width: 640px) {
+  .profile-picture {
+    width: 60px;
+    height: 60px;
+    border-width: 2px;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+    .booking-card {
+        grid-template-columns: 1fr;
+    }
+    
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 640px) {
+    .booking-status-container {
+        padding: 20px 10px;
+    }
+    
+    .left-section,
+    .right-section {
+        padding: 25px 20px;
+    }
+    
+    .driver-assigned-header {
+        margin: -25px -20px 0 -20px;
+    }
+    
+    .home-btn {
+        width: 100% !important;
+    }
+}
+
+/* Input with right-side icon/logo */
+.input-with-icon {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.input-with-icon input[type="text"],
+.input-with-icon input[type="search"],
+.input-with-icon .search-input {
+  width: 100%;
+  padding-right: 44px;
+  box-sizing: border-box;
+  border: 2px solid #e5e5e5;
+  border-radius: 8px;
+  background: white;
+}
+
+.input-with-icon input:focus {
+    outline: none;
+    border-color: #22c55e;
+}
+
+/* right-side logo / icon */
+.input-with-icon .input-logo {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  pointer-events: none;
+  opacity: 0.95;
+}
+
+/* small screens: reduce icon size */
+@media (max-width: 480px) {
+  .input-with-icon .input-logo {
+    width: 22px;
+    height: 22px;
+    right: 6px;
+  }
+
+  .input-with-icon input[type="text"],
+  .input-with-icon .search-input {
+    padding-right: 36px;
+  }
+}

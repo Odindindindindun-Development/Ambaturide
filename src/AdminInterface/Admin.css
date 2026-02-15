@@ -1,0 +1,797 @@
+/* Admin Panel - Black & White Theme */
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    font-family: 'Inter', -apple-system, Roboto, Helvetica, sans-serif;
+    background: #ffffff;
+}
+
+.admin-main-container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    gap: 0;
+    background: #f8f9fa;
+}
+
+/* Admin Manager Sidebar - IMPROVED */
+.admin-sidebar {
+    width: 280px;
+    background: #ffffff;
+    border-right: 2px solid #000000;
+    padding: 30px 0;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
+}
+
+.admin-sidebar ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.admin-sidebar li {
+    margin: 0;
+    padding: 0;
+}
+
+.admin-sidebar a {
+    display: block;
+    padding: 18px 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #000000;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+    user-select: none;
+    text-decoration: none;
+    position: relative;
+}
+
+.admin-sidebar a:hover {
+    background: #f5f5f5;
+    border-left-color: #000000;
+    transform: translateX(4px);
+}
+
+.admin-sidebar a:active {
+    background: #e0e0e0;
+}
+
+.admin-sidebar a.active {
+    background: #000000;
+    color: #ffffff;
+    border-left-color: #000000;
+}
+
+.admin-sidebar a.active:hover {
+    background: #000000;
+    color: #ffffff;
+    border-left-color: #000000;
+    transform: none;
+}
+
+.admin-sidebar li:last-child a {
+    margin-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 25px;
+    color: #d32f2f;
+}
+
+.admin-sidebar li:last-child a:hover {
+    background: #ffebee;
+    border-left-color: #d32f2f;
+    color: #d32f2f;
+}
+
+/* Main Content Area */
+.admin-content {
+    flex: 1;
+    padding: 30px;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+/* Panel Styles */
+.panel {
+    background: #ffffff;
+    border: 2px solid #000000;
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    animation: panelSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes panelSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.panel h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #000000;
+    margin: 0 0 25px 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #000000;
+}
+
+/* Table Styles */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.admin-table th {
+    background: #000000;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 15px 12px;
+    text-align: left;
+    border: none;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.admin-table td {
+    padding: 15px 12px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #000000;
+    background: #ffffff;
+    animation: tableRowFade 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes tableRowFade {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.admin-table tr:hover td {
+    background: #f8f9fa;
+}
+
+.admin-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Button Styles */
+button {
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    border: 2px solid #000000;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #000000;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+button:hover:not(:disabled) {
+    background: #000000;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+button.red {
+    background: #d32f2f;
+    color: #ffffff;
+    border-color: #d32f2f;
+}
+
+button.red:hover:not(:disabled) {
+    background: #b71c1c;
+    border-color: #b71c1c;
+}
+
+button.green {
+    background: #2e7d32;
+    color: #ffffff;
+    border-color: #2e7d32;
+}
+
+button.blue {
+    background: #1976d2;
+    color: #ffffff;
+    border-color: #1976d2;
+}
+
+button.yellow {
+    background: #f57c00;
+    color: #ffffff;
+    border-color: #f57c00;
+}
+
+/* Small Button Variant */
+button.small {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    min-width: 60px;
+    border-width: 1px;
+}
+
+/* Drivers List Styles */
+.drivers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.driver-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px;
+    background: #fafafa;
+    border: 2px solid #000000;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.driver-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.driver-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    flex: 1;
+}
+
+.driver-info img {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2px solid #000000;
+}
+
+.driver-details {
+    flex: 1;
+}
+
+.driver-details div:first-child {
+    font-weight: 700;
+    color: #000000;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.driver-details div:not(:first-child) {
+    color: #666666;
+    font-size: 0.9rem;
+}
+
+.driver-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.driver-actions button {
+    min-width: 100px;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    margin-top: 8px;
+}
+
+.status-pending {
+    background: #fff3e0;
+    color: #e65100;
+    border: 1px solid #ffb74d;
+}
+
+.status-active {
+    background: #e8f5e8;
+    color: #2e7d32;
+    border: 1px solid #81c784;
+}
+
+.status-completed {
+    background: #f5f5f5;
+    color: #424242;
+    border: 1px solid #bdbdbd;
+}
+
+/* Loading and Empty States */
+.loading-state {
+    text-align: center;
+    padding: 40px;
+    color: #666666;
+    font-size: 1.1rem;
+    background: #fafafa;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 40px;
+    color: #666666;
+    background: #fafafa;
+    border: 2px dashed #e0e0e0;
+    border-radius: 12px;
+}
+
+.empty-state h3 {
+    color: #000000;
+    margin: 0 0 12px 0;
+    font-size: 1.3rem;
+}
+
+/* Grid Layout for Multiple Panels */
+.panels-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.panels-grid .panel {
+    margin-bottom: 0;
+}
+
+/* Improved Media Thumbnails */
+.driver-media {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.media-thumb {
+    width: 80px;
+    height: 60px;
+    background: #f6f6f6;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 10px;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.media-thumb:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.media-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.media-thumb.placeholder {
+    background: #f0f0f0;
+    color: #999;
+    font-weight: 500;
+}
+
+.zoom-btn {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.media-thumb:hover .zoom-btn {
+    opacity: 1;
+}
+
+.zoom-btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+/* Image Modal */
+.image-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    animation: modalFadeIn 0.3s ease forwards;
+    padding: 24px; /* allow some breathing room on small screens */
+    box-sizing: border-box;
+}
+
+@keyframes modalFadeIn {
+    to { opacity: 1; }
+}
+
+.modal-content {
+    position: relative;
+    max-width: 95vw;
+    max-height: 95vh;
+    background: transparent; /* keep background dark overlay outside image */
+    border-radius: 12px;
+    overflow: visible; /* allow caption / close to render outside if needed */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 8px;
+    
+}
+
+.modal-content img {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* ensure entire image is visible within the modal */
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    margin-top: 12px !important; /* added top margin so image isn't flush to the top */
+}
+
+/* Keep close button visible */
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+/* Caption below image (non-overlapping) */
+.modal-caption {
+    position: static;
+    background: transparent;
+    color: #fff;
+    padding: 6px 10px;
+    font-size: 0.95rem;
+    text-align: center;
+    max-width: 95%;
+    overflow-wrap: break-word;
+}
+
+/* responsive tweaks */
+@media (max-width: 640px) {
+  .image-modal { padding: 12px; }
+  .modal-close { top: 8px; right: 8px; width:36px; height:36px; }
+  .modal-caption { font-size: 0.9rem; }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .admin-main-container {
+        flex-direction: column;
+    }
+    
+    .admin-sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        border-right: none;
+        border-bottom: 2px solid #000000;
+    }
+    
+    .admin-sidebar ul {
+        display: flex;
+        overflow-x: auto;
+        padding: 0 20px;
+    }
+    
+    .admin-sidebar li {
+        white-space: nowrap;
+        border-left: none;
+        border-bottom: 4px solid transparent;
+    }
+    
+    .admin-sidebar a {
+        border-left: none;
+        border-bottom: 4px solid transparent;
+        padding: 15px 20px;
+    }
+    
+    .admin-sidebar a:hover,
+    .admin-sidebar a.active {
+        border-left-color: transparent;
+        border-bottom-color: #000000;
+        transform: translateY(-2px);
+    }
+    
+    .admin-sidebar li:last-child a {
+        border-top: none;
+        margin-top: 0;
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-content {
+        padding: 20px;
+    }
+    
+    .panel {
+        padding: 20px;
+        border-radius: 12px;
+    }
+    
+    .panels-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .driver-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .driver-actions {
+        justify-content: stretch;
+    }
+    
+    .driver-actions button {
+        flex: 1;
+    }
+    
+    .admin-table {
+        font-size: 0.85rem;
+    }
+    
+    .admin-table th,
+    .admin-table td {
+        padding: 12px 8px;
+    }
+    
+    .media-thumb {
+        width: 70px;
+        height: 52px;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-content {
+        padding: 15px;
+    }
+    
+    .panel {
+        padding: 15px;
+    }
+    
+    .panel h2 {
+        font-size: 1.5rem;
+    }
+    
+    .admin-sidebar a {
+        padding: 15px 20px;
+        font-size: 1rem;
+    }
+    
+    .admin-sidebar ul {
+        padding: 0 15px;
+    }
+    
+    .driver-media {
+        gap: 8px;
+    }
+    
+    .media-thumb {
+        width: 60px;
+        height: 45px;
+        font-size: 9px;
+    }
+}
+
+/* Add these styles to your Admin.css */
+
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 1px solid #ffffff;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #e74d3c00;
+  color: white;
+  border: none;
+  width: 10px !important;
+  height: 40px !important;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  background: #ff190000 !important;
+  transform: scale(1.1);
+}
+
+.modal-close:active {
+  transform: scale(1);
+}
+
+.modal-content h3 {
+  color: #fff;
+  margin: 0 0 20px 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  padding-right: 40px;
+}
+
+/* Reports list container */
+.reports-container {
+  width: 100%;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+/* Individual report card */
+.report-card {
+  background: #fff;
+  color: #222;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border-left: 4px solid #e74c3c;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.report-passenger {
+  font-weight: 600;
+  color: #000000;
+  font-size: 1rem;
+}
+
+.report-meta {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+.report-booking {
+  font-size: 0.8rem;
+  color: #000000;
+  background: #f8f9fa;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.report-message {
+  margin-top: 12px;
+  white-space: pre-wrap;
+  line-height: 1.4;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+/* Loading and empty states */
+.modal-loading, .modal-empty {
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+/* Scrollbar styling for reports container */
+.reports-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.reports-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.reports-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
+.reports-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}

@@ -1,0 +1,22 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Make sure the page can scroll */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;   /* ✅ page grows with content */
+  height: auto;
+  overflow-x: hidden; /* ✅ no sideways scroll */
+  overflow-y: auto;   /* ✅ vertical scroll enabled */
+  background: #ffffff;
+  color: #222;        /* ✅ readable text */
+}
