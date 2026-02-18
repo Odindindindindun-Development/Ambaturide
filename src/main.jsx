@@ -35,17 +35,17 @@ createRoot(document.getElementById("root")).render(
         {/* Passenger */}
         <Route path="/" element={<PassengerHomepage />} />
         <Route path="/LoginHomepage" element={<LoginHomepage />} />
-        <Route path="/PassengerLogin" element={<PassengerLogin/>}/>
-        <Route path="/PassengerSignUp" element={<PassengerSignUp/>}/>
-        <Route path="/Passenger_Booking" element={<Passenger_Booking/>}/>
-        <Route path="/PassengerProfile" element={<PassengerProfile/>}/>
-        <Route path="/PassengerBookingStatus" element={<PassengerBookingStatus/>}/>
+        <Route path="/PassengerLogin" element={<PassengerLogin />} />
+        <Route path="/PassengerSignUp" element={<PassengerSignUp />} />
+        <Route path="/Passenger_Booking" element={<Passenger_Booking />} />
+        <Route path="/PassengerProfile" element={<PassengerProfile />} />
+        <Route path="/PassengerBookingStatus" element={<PassengerBookingStatus />} />
 
         {/* Driver */}
         <Route path="/DriverSignUp" element={<DriverSignUp />} />
         <Route path="/DriverLogin" element={<DriverLogin />} />
         <Route path="/DriverBooking" element={<DriverBooking />} />
-        <Route path="/DriverProfile" element={<DriverProfile/>} />
+        <Route path="/DriverProfile" element={<DriverProfile />} />
         <Route path="/Reviews" element={<Reviews />} />
         <Route path="/DriverBookingStatus" element={<DriverBookingStatus />} />
 

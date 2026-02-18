@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import "./Reviews.css";
+import "./DriverCss/Reviews.css";
 import DriverHeader from '../../src/DriverHeader.jsx'
 import { useRequireDriver } from "../utils/authGuards.jsx";
 
@@ -34,7 +34,7 @@ function ReviewCard({ userName, date, rating, avatarUrl, reviewText }) {
         <div className="userInfo">
           <div className="userAvatar">
             {avatarUrl ? (
-              <img src={avatarUrl} alt={userName} className="avatarImg" onError={(e)=>{e.currentTarget.onerror=null; e.currentTarget.src="/profile-pictures/default.jpg"}}/>
+              <img src={avatarUrl} alt={userName} className="avatarImg" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/profile-pictures/default.jpg" }} />
             ) : (
               <div className="avatarFallback">{userName?.charAt(0)?.toUpperCase() || "U"}</div>
             )}
@@ -63,7 +63,7 @@ function Reviews() {
   const [stats, setStats] = useState({
     averageRating: 0,
     totalReviews: 0,
-    ratingDistribution: {5:0, 4:0, 3:0, 2:0, 1:0}
+    ratingDistribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
   });
 
   // get driver id from localStorage
@@ -111,11 +111,11 @@ function Reviews() {
 
           // Calculate statistics
           const totalReviews = normalized.length;
-          const averageRating = totalReviews > 0 
+          const averageRating = totalReviews > 0
             ? (normalized.reduce((sum, r) => sum + r.rating, 0) / totalReviews).toFixed(1)
             : 0;
-          
-          const ratingDistribution = {5:0, 4:0, 3:0, 2:0, 1:0};
+
+          const ratingDistribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
           normalized.forEach(r => {
             if (r.rating >= 1 && r.rating <= 5) {
               ratingDistribution[r.rating]++;
@@ -142,7 +142,7 @@ function Reviews() {
 
   return (
     <>
-      <DriverHeader/>
+      <DriverHeader />
       <div className="pageContainer">
         <div className="contentWrapper">
           <main className="mainContent">
@@ -174,10 +174,10 @@ function Reviews() {
                     <div key={stars} className="distributionRow">
                       <span className="starsLabel">{stars} stars</span>
                       <div className="progressBar">
-                        <div 
-                          className="progressFill" 
-                          style={{ 
-                            width: `${stats.totalReviews > 0 ? (stats.ratingDistribution[stars] / stats.totalReviews) * 100 : 0}%` 
+                        <div
+                          className="progressFill"
+                          style={{
+                            width: `${stats.totalReviews > 0 ? (stats.ratingDistribution[stars] / stats.totalReviews) * 100 : 0}%`
                           }}
                         ></div>
                       </div>

@@ -1,4 +1,4 @@
-/* DriverSignUp.css */
+/* DriverSignUp.css - Gmail Style */
 .app-container {
   width: 100%;
   min-height: 100vh;
@@ -7,17 +7,20 @@
   justify-content: center;
   padding: 20px;
   box-sizing: border-box;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e2e8f0 100%);
+  background: #ffffff;
 }
 
 .error-message {
-  padding: 12px;
+  padding: 12px 16px;
   margin-bottom: 16px;
-  background-color: #f8f9fa;
-  color: #dc2626;
-  border-radius: 8px;
-  border-left: 4px solid #dc2626;
+  background-color: #fce8e6;
+  color: #c5221f;
+  border-radius: 4px;
+  border-left: 4px solid #d93025;
   font-size: 14px;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .homepage-container {
@@ -27,8 +30,9 @@
   max-width: 900px;
   width: 100%;
   background: white;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  border: 1px solid #dadce0;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
   overflow: hidden;
   min-height: 600px;
 }
@@ -37,10 +41,20 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  padding: 50px;
+  align-items: center;
+  text-align: center;
+  padding: 48px 40px 36px;
   width: 100%;
+}
+
+.gmail-logo {
+  margin-bottom: 16px;
+}
+
+.logo-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .login-header {
@@ -50,18 +64,21 @@
 }
 
 .login-header h2 {
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin-bottom: 10px;
-  color: #000000;
-  letter-spacing: -0.5px;
-  line-height: 1.2;
+  font-size: 24px;
+  font-weight: 400;
+  margin-bottom: 8px;
+  color: #202124;
+  letter-spacing: 0;
+  line-height: 1.3333;
+  font-family: 'Google Sans', 'Segoe UI', Roboto, sans-serif;
 }
 
 .login-header p {
-  font-size: 1.1rem;
-  color: #666;
+  font-size: 16px;
+  color: #5f6368;
   margin: 0;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 .login-form {
@@ -92,30 +109,38 @@
 }
 
 .form-group label {
-  font-weight: 500;
-  color: #000000;
-  font-size: 0.9rem;
+  font-weight: 400;
+  color: #5f6368;
+  font-size: 14px;
+  text-align: left;
 }
 
 .form-group input,
 .select-input {
-  padding: 12px 14px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
+  padding: 13px 15px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: all 0.2s ease;
   width: 100%;
   box-sizing: border-box;
   background: #ffffff;
-  color: #000000;
+  color: #202124;
   font-family: inherit;
+}
+
+.form-group input:hover,
+.select-input:hover {
+  border-color: #bdc1c6;
 }
 
 .form-group input:focus,
 .select-input:focus {
   outline: none;
-  border-color: #000000;
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+  border-color: #1a73e8;
+  border-width: 2px;
+  padding: 12px 14px;
+  box-shadow: none;
 }
 
 .select-input {
@@ -123,26 +148,28 @@
 }
 
 .file-input {
-  padding: 10px 14px;
-  border: 2px dashed #d1d5db;
-  background: #f8f9fa;
+  padding: 10px 15px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  background: #ffffff;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  color: #5f6368;
 }
 
 .file-input:hover {
-  border-color: #000000;
-  background: #f1f5f9;
+  border-color: #bdc1c6;
+  background: #f8f9fa;
 }
 
 .file-preview {
-  padding: 6px 10px;
-  background: #f1f5f9;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  color: #374151;
-  border-left: 3px solid #000000;
+  padding: 8px 12px;
+  background: #e8f0fe;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #1967d2;
+  border-left: 3px solid #1a73e8;
 }
 
 .password-input-container {
@@ -157,74 +184,83 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #666;
-  font-size: 0.85rem;
+  color: #1a73e8;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  padding: 4px;
+  padding: 4px 8px;
 }
 
 .password-toggle:hover {
-  color: #000000;
+  background: rgba(26, 115, 232, 0.04);
+  border-radius: 4px;
 }
 
 .login-btn {
-  background-color: #000000;
+  background-color: #1a73e8;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 14px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 4px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 10px;
+  transition: all 0.2s ease;
+  margin-top: 20px;
   width: 100%;
+  min-height: 40px;
+  letter-spacing: 0.25px;
 }
 
-.login-btn:hover {
-  background-color: #333333;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.login-btn:hover:not(:disabled) {
+  background-color: #1765cc;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+}
+
+.login-btn:disabled {
+  background-color: #dadce0;
+  color: #9aa0a6;
+  cursor: not-allowed;
 }
 
 .divider {
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 20px 0;
-  color: #666666;
+  margin: 24px 0 16px;
+  color: #5f6368;
 }
 
 .divider::before,
 .divider::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid #d1d5db;
+  border-bottom: 1px solid #dadce0;
 }
 
 .divider span {
-  padding: 0 15px;
-  font-size: 0.9rem;
+  padding: 0 16px;
+  font-size: 14px;
 }
 
 .create-account-btn {
   background-color: #ffffff;
-  color: #000000;
-  border: 1px solid #000000;
-  border-radius: 8px;
-  padding: 14px;
-  font-size: 1rem;
-  font-weight: 600;
+  color: #1a73e8;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   width: 100%;
+  min-height: 40px;
+  letter-spacing: 0.25px;
 }
 
 .create-account-btn:hover {
-  background-color: #000000;
-  color: #ffffff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: rgba(26, 115, 232, 0.04);
+  border-color: #bdc1c6;
 }
 
 /* Responsive Design */
@@ -232,15 +268,15 @@
   .homepage-container {
     max-width: 700px;
   }
-  
+
   .form-content {
     padding: 40px 30px;
   }
-  
+
   .login-header h2 {
     font-size: 2rem;
   }
-  
+
   .form-columns {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -251,21 +287,21 @@
   .app-container {
     padding: 10px;
   }
-  
+
   .form-content {
     padding: 30px 20px;
   }
-  
+
   .login-header h2 {
     font-size: 1.8rem;
   }
-  
+
   .form-group input,
   .select-input {
     padding: 10px 12px;
     font-size: 0.9rem;
   }
-  
+
   .form-columns {
     gap: 15px;
   }

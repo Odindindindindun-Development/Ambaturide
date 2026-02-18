@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import CaptchaModal from "./CaptchaModal.jsx";
 import Header_Login from "../../src/Header.jsx";
 import "./Css/Passenger_Booking.css";
 
@@ -18,6 +19,8 @@ function Passenger_Booking() {
   const [dropoffAddress, setDropoffAddress] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [showCaptcha, setShowCaptcha] = useState(false);
+  const [pendingBookingData, setPendingBookingData] = useState(null);
 
   const areas = [
     "Toril", "Mintal", "Catalunan", "Bago Gallera", "Ulas",
@@ -26,79 +29,79 @@ function Passenger_Booking() {
   ];
 
   // Local distance matrix (km) between major areas — add / tweak values as needed.
-// Complete and symmetric local distance matrix (km) between major Davao areas
-const distanceMatrix = {
-  "Toril": {
-    "Mintal": 8, "Catalunan": 12, "Bago Gallera": 5, "Ulas": 15, "Matina Crossing": 18,
-    "Maa": 20, "Ecoland": 22, "Roxas": 24, "Magsaysay": 26, "Agdao": 28,
-    "Buhangin": 30, "Lanang": 25, "Sasa": 28
-  },
-  "Mintal": {
-    "Toril": 8, "Catalunan": 6, "Bago Gallera": 10, "Ulas": 12, "Matina Crossing": 14,
-    "Maa": 16, "Ecoland": 18, "Roxas": 20, "Magsaysay": 22, "Agdao": 24,
-    "Buhangin": 26, "Lanang": 22, "Sasa": 24
-  },
-  "Catalunan": {
-    "Toril": 12, "Mintal": 6, "Bago Gallera": 8, "Ulas": 10, "Matina Crossing": 12,
-    "Maa": 10, "Ecoland": 13, "Roxas": 15, "Magsaysay": 18, "Agdao": 20,
-    "Buhangin": 22, "Lanang": 20, "Sasa": 22
-  },
-  "Bago Gallera": {
-    "Toril": 5, "Mintal": 10, "Catalunan": 8, "Ulas": 10, "Matina Crossing": 12,
-    "Maa": 13, "Ecoland": 15, "Roxas": 18, "Magsaysay": 20, "Agdao": 22,
-    "Buhangin": 24, "Lanang": 20, "Sasa": 22
-  },
-  "Ulas": {
-    "Toril": 15, "Mintal": 12, "Catalunan": 10, "Bago Gallera": 10, "Matina Crossing": 5,
-    "Maa": 6, "Ecoland": 8, "Roxas": 10, "Magsaysay": 14, "Agdao": 16,
-    "Buhangin": 18, "Lanang": 15, "Sasa": 17
-  },
-  "Matina Crossing": {
-    "Toril": 18, "Mintal": 14, "Catalunan": 12, "Bago Gallera": 12, "Ulas": 5,
-    "Maa": 3, "Ecoland": 4, "Roxas": 6, "Magsaysay": 8, "Agdao": 10,
-    "Buhangin": 12, "Lanang": 12, "Sasa": 14
-  },
-  "Maa": {
-    "Toril": 20, "Mintal": 16, "Catalunan": 10, "Bago Gallera": 13, "Ulas": 6,
-    "Matina Crossing": 3, "Ecoland": 5, "Roxas": 7, "Magsaysay": 9,
-    "Agdao": 11, "Buhangin": 13, "Lanang": 10, "Sasa": 12
-  },
-  "Ecoland": {
-    "Toril": 22, "Mintal": 18, "Catalunan": 13, "Bago Gallera": 15, "Ulas": 8,
-    "Matina Crossing": 4, "Maa": 5, "Roxas": 5, "Magsaysay": 7,
-    "Agdao": 8, "Buhangin": 10, "Lanang": 10, "Sasa": 12
-  },
-  "Roxas": {
-    "Toril": 24, "Mintal": 20, "Catalunan": 15, "Bago Gallera": 18, "Ulas": 10,
-    "Matina Crossing": 6, "Maa": 7, "Ecoland": 5, "Magsaysay": 2,
-    "Agdao": 4, "Buhangin": 6, "Lanang": 8, "Sasa": 10
-  },
-  "Magsaysay": {
-    "Toril": 26, "Mintal": 22, "Catalunan": 18, "Bago Gallera": 20, "Ulas": 14,
-    "Matina Crossing": 8, "Maa": 9, "Ecoland": 7, "Roxas": 2,
-    "Agdao": 3, "Buhangin": 5, "Lanang": 7, "Sasa": 9
-  },
-  "Agdao": {
-    "Toril": 28, "Mintal": 24, "Catalunan": 20, "Bago Gallera": 22, "Ulas": 16,
-    "Matina Crossing": 10, "Maa": 11, "Ecoland": 8, "Roxas": 4,
-    "Magsaysay": 3, "Buhangin": 4, "Lanang": 6, "Sasa": 8
-  },
-  "Buhangin": {
-    "Toril": 30, "Mintal": 26, "Catalunan": 22, "Bago Gallera": 24, "Ulas": 18,
-    "Matina Crossing": 12, "Maa": 13, "Ecoland": 10, "Roxas": 6,
-    "Magsaysay": 5, "Agdao": 4, "Lanang": 5, "Sasa": 7
-  },
-  "Lanang": {
-    "Toril": 25, "Mintal": 22, "Catalunan": 20, "Bago Gallera": 20, "Ulas": 15,
-    "Matina Crossing": 12, "Maa": 10, "Ecoland": 10, "Roxas": 8,
-    "Magsaysay": 7, "Agdao": 6, "Buhangin": 5, "Sasa": 3
-  },
-  "Sasa": {
-    "Toril": 28, "Mintal": 24, "Catalunan": 22, "Bago Gallera": 22, "Ulas": 17,
-    "Matina Crossing": 14, "Maa": 12, "Ecoland": 12, "Roxas": 10,
-    "Magsaysay": 9, "Agdao": 8, "Buhangin": 7, "Lanang": 3
-  }
-};
+  // Complete and symmetric local distance matrix (km) between major Davao areas
+  const distanceMatrix = {
+    "Toril": {
+      "Mintal": 8, "Catalunan": 12, "Bago Gallera": 5, "Ulas": 15, "Matina Crossing": 18,
+      "Maa": 20, "Ecoland": 22, "Roxas": 24, "Magsaysay": 26, "Agdao": 28,
+      "Buhangin": 30, "Lanang": 25, "Sasa": 28
+    },
+    "Mintal": {
+      "Toril": 8, "Catalunan": 6, "Bago Gallera": 10, "Ulas": 12, "Matina Crossing": 14,
+      "Maa": 16, "Ecoland": 18, "Roxas": 20, "Magsaysay": 22, "Agdao": 24,
+      "Buhangin": 26, "Lanang": 22, "Sasa": 24
+    },
+    "Catalunan": {
+      "Toril": 12, "Mintal": 6, "Bago Gallera": 8, "Ulas": 10, "Matina Crossing": 12,
+      "Maa": 10, "Ecoland": 13, "Roxas": 15, "Magsaysay": 18, "Agdao": 20,
+      "Buhangin": 22, "Lanang": 20, "Sasa": 22
+    },
+    "Bago Gallera": {
+      "Toril": 5, "Mintal": 10, "Catalunan": 8, "Ulas": 10, "Matina Crossing": 12,
+      "Maa": 13, "Ecoland": 15, "Roxas": 18, "Magsaysay": 20, "Agdao": 22,
+      "Buhangin": 24, "Lanang": 20, "Sasa": 22
+    },
+    "Ulas": {
+      "Toril": 15, "Mintal": 12, "Catalunan": 10, "Bago Gallera": 10, "Matina Crossing": 5,
+      "Maa": 6, "Ecoland": 8, "Roxas": 10, "Magsaysay": 14, "Agdao": 16,
+      "Buhangin": 18, "Lanang": 15, "Sasa": 17
+    },
+    "Matina Crossing": {
+      "Toril": 18, "Mintal": 14, "Catalunan": 12, "Bago Gallera": 12, "Ulas": 5,
+      "Maa": 3, "Ecoland": 4, "Roxas": 6, "Magsaysay": 8, "Agdao": 10,
+      "Buhangin": 12, "Lanang": 12, "Sasa": 14
+    },
+    "Maa": {
+      "Toril": 20, "Mintal": 16, "Catalunan": 10, "Bago Gallera": 13, "Ulas": 6,
+      "Matina Crossing": 3, "Ecoland": 5, "Roxas": 7, "Magsaysay": 9,
+      "Agdao": 11, "Buhangin": 13, "Lanang": 10, "Sasa": 12
+    },
+    "Ecoland": {
+      "Toril": 22, "Mintal": 18, "Catalunan": 13, "Bago Gallera": 15, "Ulas": 8,
+      "Matina Crossing": 4, "Maa": 5, "Roxas": 5, "Magsaysay": 7,
+      "Agdao": 8, "Buhangin": 10, "Lanang": 10, "Sasa": 12
+    },
+    "Roxas": {
+      "Toril": 24, "Mintal": 20, "Catalunan": 15, "Bago Gallera": 18, "Ulas": 10,
+      "Matina Crossing": 6, "Maa": 7, "Ecoland": 5, "Magsaysay": 2,
+      "Agdao": 4, "Buhangin": 6, "Lanang": 8, "Sasa": 10
+    },
+    "Magsaysay": {
+      "Toril": 26, "Mintal": 22, "Catalunan": 18, "Bago Gallera": 20, "Ulas": 14,
+      "Matina Crossing": 8, "Maa": 9, "Ecoland": 7, "Roxas": 2,
+      "Agdao": 3, "Buhangin": 5, "Lanang": 7, "Sasa": 9
+    },
+    "Agdao": {
+      "Toril": 28, "Mintal": 24, "Catalunan": 20, "Bago Gallera": 22, "Ulas": 16,
+      "Matina Crossing": 10, "Maa": 11, "Ecoland": 8, "Roxas": 4,
+      "Magsaysay": 3, "Buhangin": 4, "Lanang": 6, "Sasa": 8
+    },
+    "Buhangin": {
+      "Toril": 30, "Mintal": 26, "Catalunan": 22, "Bago Gallera": 24, "Ulas": 18,
+      "Matina Crossing": 12, "Maa": 13, "Ecoland": 10, "Roxas": 6,
+      "Magsaysay": 5, "Agdao": 4, "Lanang": 5, "Sasa": 7
+    },
+    "Lanang": {
+      "Toril": 25, "Mintal": 22, "Catalunan": 20, "Bago Gallera": 20, "Ulas": 15,
+      "Matina Crossing": 12, "Maa": 10, "Ecoland": 10, "Roxas": 8,
+      "Magsaysay": 7, "Agdao": 6, "Buhangin": 5, "Sasa": 3
+    },
+    "Sasa": {
+      "Toril": 28, "Mintal": 24, "Catalunan": 22, "Bago Gallera": 22, "Ulas": 17,
+      "Matina Crossing": 14, "Maa": 12, "Ecoland": 12, "Roxas": 10,
+      "Magsaysay": 9, "Agdao": 8, "Buhangin": 7, "Lanang": 3
+    }
+  };
 
 
   // helper: get local YYYY-MM-DD (avoid timezone shift)
@@ -132,10 +135,11 @@ const distanceMatrix = {
     return baseFare + distanceFare;
   };
 
+  // Step 1 — validate fields, check active booking, then show captcha
   const handleConfirmBooking = async () => {
     const savedPassenger = JSON.parse(localStorage.getItem("passenger"));
     if (!savedPassenger || !savedPassenger.PassengerID) {
-      alert("Please log in first.");
+      navigate("/PassengerSignUp");
       return;
     }
 
@@ -161,32 +165,39 @@ const distanceMatrix = {
       const activeStatuses = ["pending", "accepted", "assigned", "active"];
       if (existing && activeStatuses.includes((existing.Status || "").toLowerCase())) {
         alert("You already have an active booking. Please cancel it first to book another.");
-        // redirect to booking status so user can cancel/view it
         navigate("/PassengerBookingStatus", { state: { booking: existing } });
         return;
       }
     } catch (err) {
       console.warn("Could not verify existing booking, proceeding with booking attempt:", err);
-      // optionally: return here to be safe. Currently we proceed.
     }
 
-    const bookingData = {
+    // All good — store booking data and show captcha
+    setPendingBookingData({
       PassengerID: savedPassenger.PassengerID,
       PickupArea: pickup,
       DropoffArea: dropoff,
       PickupFullAddress: pickupAddress,
       DropoffFullAddress: dropoffAddress,
-      RideDate: date, // keep as YYYY-MM-DD string to avoid timezone shifting on server
+      RideDate: date,
       RideTime: time,
       VehicleType: selectedVehicle === "4-seater" ? "4 Seaters" : "6 Seaters",
       Fare: calculateTotal()
-    };
+    });
+    setShowCaptcha(true);
+  };
+
+  // Step 2 — called after captcha is solved successfully
+  const handleCaptchaVerify = async (token) => {
+    setShowCaptcha(false);
+
+    if (!token || !pendingBookingData) return;
 
     try {
       const response = await fetch("http://localhost:3001/api/passenger/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bookingData)
+        body: JSON.stringify({ ...pendingBookingData, captchaToken: token })
       });
 
       const data = await response.json();
@@ -199,8 +210,9 @@ const distanceMatrix = {
         setDate("");
         setTime("");
         setSelectedVehicle("");
+        setPendingBookingData(null);
       } else {
-        alert("❌ " + data.message);
+        alert("\u274C " + data.message);
       }
     } catch (err) {
       console.error("Error submitting booking:", err);
@@ -208,10 +220,22 @@ const distanceMatrix = {
     }
   };
 
+  const handleCaptchaClose = () => {
+    setShowCaptcha(false);
+  };
+
 
   return (
     <>
       <Header_Login />
+
+      {/* ── Custom Captcha modal ── */}
+      {showCaptcha && (
+        <CaptchaModal
+          onVerify={handleCaptchaVerify}
+          onClose={handleCaptchaClose}
+        />
+      )}
       <div className="booking-container">
         <div className="booking-card">
           {/* LEFT SIDE */}
@@ -225,13 +249,13 @@ const distanceMatrix = {
             <div className="form-group">
               <label className="form-label">Pickup Area</label>
               <div className="select-wrapper">
-                <select 
-                  value={pickup} 
+                <select
+                  value={pickup}
                   onChange={(e) => setPickup(e.target.value)}
                   className="form-select"
                 >
                   <option value="">Select pickup area</option>
-                  { areas.map((area) => (
+                  {areas.map((area) => (
                     <option key={area} value={area}>
                       {area}
                     </option>
@@ -245,8 +269,8 @@ const distanceMatrix = {
             <div className="form-group">
               <label className="form-label">Dropoff Area</label>
               <div className="select-wrapper">
-                <select 
-                  value={dropoff} 
+                <select
+                  value={dropoff}
                   onChange={(e) => setDropoff(e.target.value)}
                   className="form-select"
                 >
@@ -266,8 +290,8 @@ const distanceMatrix = {
               <div className="form-group">
                 <label className="form-label">Date</label>
                 <div className="icon-input">
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     value={date}
                     min={todayMin}
                     onChange={(e) => setDate(e.target.value)}
@@ -278,8 +302,8 @@ const distanceMatrix = {
               <div className="form-group">
                 <label className="form-label">Time</label>
                 <div className="icon-input">
-                  <input 
-                    type="time" 
+                  <input
+                    type="time"
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
                     className="form-input"
@@ -332,8 +356,8 @@ const distanceMatrix = {
             <div className="address-section">
               <div className="form-group">
                 <label className="form-label">Pickup Full Address</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Enter full pickup address (street, building, landmark)"
                   value={pickupAddress}
                   onChange={(e) => setPickupAddress(e.target.value)}
@@ -342,8 +366,8 @@ const distanceMatrix = {
               </div>
               <div className="form-group">
                 <label className="form-label">Dropoff Full Address</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Enter full dropoff address (street, building, landmark)"
                   value={dropoffAddress}
                   onChange={(e) => setDropoffAddress(e.target.value)}
@@ -355,7 +379,7 @@ const distanceMatrix = {
             <div className="vehicle-section">
               <h3 className="section-title">Choose Your Vehicle</h3>
               <div className="vehicle-options">
-                <button 
+                <button
                   className={`vehicle-btn ${selectedVehicle === '4-seater' ? 'selected four' : 'four'}`}
                   onClick={() => setSelectedVehicle('4-seater')}
                 >
@@ -363,7 +387,7 @@ const distanceMatrix = {
                   <span className="vehicle-name">4 Seaters</span>
                   <span className="vehicle-price">₱15/km</span>
                 </button>
-                <button 
+                <button
                   className={`vehicle-btn ${selectedVehicle === '6-seater' ? 'selected six' : 'six'}`}
                   onClick={() => setSelectedVehicle('6-seater')}
                 >

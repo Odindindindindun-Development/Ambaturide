@@ -1,94 +1,142 @@
-// Cloudinary configuration for serverless file uploads
-import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
+// Local file storage configuration (switched from Cloudinary for development)
 import multer from 'multer';
-import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 
-dotenv.config();
+// Get the directory name in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+// Ensure upload directories exist
+const uploadDir = path.resolve(__dirname, 'uploads');
+const dirs = [
+  path.join(uploadDir, 'profile-pictures'),
+  path.join(uploadDir, 'driver-license'),
+  path.join(uploadDir, 'vehicle-images'),
+  path.join(uploadDir, 'inquiries')
+];
+
+dirs.forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
 });
 
 // Storage for profile pictures
-const profilePictureStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'ambaturide/profile-pictures',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-    transformation: [{ width: 500, height: 500, crop: 'limit' }],
+const profilePictureStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(uploadDir, 'profile-pictures'));
   },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'profile-' + uniqueSuffix + path.extname(file.originalname));
+  }
 });
 
 // Storage for driver license images
-const driverLicenseStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'ambaturide/driver-license',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'pdf'],
+const driverLicenseStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(uploadDir, 'driver-license'));
   },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'license-' + uniqueSuffix + path.extname(file.originalname));
+  }
 });
 
 // Storage for vehicle images
-const vehicleImageStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'ambaturide/vehicle-images',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 1200, height: 800, crop: 'limit' }],
+const vehicleImageStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(uploadDir, 'vehicle-images'));
   },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'vehicle-' + uniqueSuffix + path.extname(file.originalname));
+  }
 });
 
 // Storage for inquiry attachments
-const inquiryStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'ambaturide/inquiries',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'],
+const inquiryStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(uploadDir, 'inquiries'));
   },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'inquiry-' + uniqueSuffix + path.extname(file.originalname));
+  }
 });
 
-// Create multer upload instances
-export const uploadProfilePicture = multer({ storage: profilePictureStorage });
-export const uploadDriverLicense = multer({ storage: driverLicenseStorage });
-export const uploadVehicleImage = multer({ storage: vehicleImageStorage });
-export const uploadInquiry = multer({ storage: inquiryStorage, limits: { fileSize: 5 * 1024 * 1024 } });
+// File filter for images
+const imageFilter = (req, file, cb) => {
+  const allowedTypes = /jpeg|jpg|png|gif|webp/;
+  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedTypes.test(file.mimetype);
 
-// Combined upload for driver signup (license + vehicle)
-export const uploadDriverSignup = multer({
-  storage: new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: async (req, file) => {
-      const folder = file.fieldname === 'licenseImage' 
-        ? 'ambaturide/driver-license' 
-        : 'ambaturide/vehicle-images';
-      return {
-        folder,
-        allowed_formats: ['jpg', 'jpeg', 'png'],
-      };
-    },
-  }),
-});
-
-// Helper to delete image from Cloudinary
-export const deleteFromCloudinary = async (publicId) => {
-  try {
-    if (publicId) {
-      await cloudinary.uploader.destroy(publicId);
-    }
-  } catch (error) {
-    console.error('Error deleting from Cloudinary:', error);
+  if (mimetype && extname) {
+    return cb(null, true);
+  } else {
+    cb(new Error('Only image files are allowed!'));
   }
 };
 
-// Extract public_id from Cloudinary URL
-export const getPublicIdFromUrl = (url) => {
-  if (!url) return null;
-  const matches = url.match(/\/v\d+\/(.+)\.\w+$/);
-  return matches ? matches[1] : null;
+// Create multer upload instances
+export const uploadProfilePicture = multer({
+  storage: profilePictureStorage,
+  fileFilter: imageFilter,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
+
+export const uploadDriverLicense = multer({
+  storage: driverLicenseStorage,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
+
+export const uploadVehicleImage = multer({
+  storage: vehicleImageStorage,
+  fileFilter: imageFilter,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
+
+export const uploadInquiry = multer({
+  storage: inquiryStorage,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
+
+// Combined upload for driver signup (license + vehicle)
+const driverSignupStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const folder = file.fieldname === 'licenseImage'
+      ? 'driver-license'
+      : 'vehicle-images';
+    cb(null, path.join(uploadDir, folder));
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const prefix = file.fieldname === 'licenseImage' ? 'license-' : 'vehicle-';
+    cb(null, prefix + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+export const uploadDriverSignup = multer({
+  storage: driverSignupStorage,
+  fileFilter: imageFilter,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit per file
+});
+
+// Helper to delete local image file
+export const deleteFromCloudinary = async (filePath) => {
+  try {
+    if (filePath && fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  } catch (error) {
+    console.error('Error deleting file:', error);
+  }
 };
 
-export default cloudinary;
+// Extract filename from path (compatibility function)
+export const getPublicIdFromUrl = (url) => {
+  if (!url) return null;
+  return path.basename(url);
+};

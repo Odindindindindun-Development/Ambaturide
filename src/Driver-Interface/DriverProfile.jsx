@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./DriverProfile.css";
+import "./DriverCss/DriverProfile.css";
 import DriverHeader from '../../src/DriverHeader.jsx';
 import axios from "axios";
 import { useRequireDriver } from "../utils/authGuards.jsx";
@@ -52,12 +52,12 @@ function DriverProfile() {
         if (savedDriver) {
           const driverData = JSON.parse(savedDriver);
           const driverId = driverData.DriverID;
-          
+
           // Fetch full driver profile from backend
           const response = await axios.get(`http://localhost:3001/api/driver/profile/${driverId}`, {
             withCredentials: true
           });
-          
+
           // Response shape can vary: normalize it and accept aliases
           let fullData = response.data;
           if (fullData.driver) fullData = fullData.driver;
@@ -273,11 +273,11 @@ function DriverProfile() {
           Email: formData.email,
           PhoneNumber: formData.contactNo,
         };
-        
+
         localStorage.setItem("driver", JSON.stringify(updatedDriver));
         localStorage.setItem("user", JSON.stringify(updatedDriver));
         window.dispatchEvent(new Event('userUpdated'));
-        
+
         setActiveSection("success");
       } else {
         alert("⚠️ Failed to update info");
@@ -362,11 +362,11 @@ function DriverProfile() {
           VehicleType: formData.carModel,
           PlateNumber: formData.plateNumber,
         };
-        
+
         localStorage.setItem("driver", JSON.stringify(updatedDriver));
         localStorage.setItem("user", JSON.stringify(updatedDriver));
         window.dispatchEvent(new Event('userUpdated'));
-        
+
         setActiveSection("carSuccess");
       } else {
         alert("⚠️ Failed to update car info");
@@ -386,7 +386,7 @@ function DriverProfile() {
       alert('Please select an image file');
       return;
     }
-    
+
     if (file.size > 5 * 1024 * 1024) {
       alert('Image size should be less than 5MB');
       return;
@@ -395,7 +395,7 @@ function DriverProfile() {
     try {
       const savedDriver = JSON.parse(localStorage.getItem("driver"));
       const driverId = savedDriver?.DriverID;
-      
+
       if (!driverId) {
         alert("No Driver ID found. Please log in again.");
         return;
@@ -416,7 +416,7 @@ function DriverProfile() {
       if (response.data.success) {
         alert("✅ Profile picture updated!");
         const newImagePath = response.data.imagePath;
-        
+
         // Update UI state
         setFormData((prev) => ({
           ...prev,
@@ -428,11 +428,11 @@ function DriverProfile() {
           ...savedDriver,
           ProfilePicture: newImagePath,
         };
-        
+
         localStorage.setItem("driver", JSON.stringify(updatedDriver));
         localStorage.setItem("user", JSON.stringify(updatedDriver));
         window.dispatchEvent(new Event('userUpdated'));
-        
+
         // Force refresh the image
         setTimeout(() => {
           setFormData((prev) => ({
@@ -456,7 +456,7 @@ function DriverProfile() {
       alert('Please select an image file');
       return;
     }
-    
+
     if (file.size > 5 * 1024 * 1024) {
       alert('Image size should be less than 5MB');
       return;
@@ -465,7 +465,7 @@ function DriverProfile() {
     try {
       const savedDriver = JSON.parse(localStorage.getItem("driver"));
       const driverId = savedDriver?.DriverID;
-      
+
       if (!driverId) {
         alert("No Driver ID found. Please log in again.");
         return;
@@ -486,7 +486,7 @@ function DriverProfile() {
       if (response.data.success) {
         alert("✅ License image updated!");
         const newImagePath = response.data.imagePath;
-        
+
         setFormData((prev) => ({
           ...prev,
           licenseImage: newImagePath
@@ -496,11 +496,11 @@ function DriverProfile() {
           ...savedDriver,
           LicenseImage: newImagePath,
         };
-        
+
         localStorage.setItem("driver", JSON.stringify(updatedDriver));
         localStorage.setItem("user", JSON.stringify(updatedDriver));
         window.dispatchEvent(new Event('userUpdated'));
-        
+
         setTimeout(() => {
           setFormData((prev) => ({
             ...prev,
@@ -523,7 +523,7 @@ function DriverProfile() {
       alert('Please select an image file');
       return;
     }
-    
+
     if (file.size > 5 * 1024 * 1024) {
       alert('Image size should be less than 5MB');
       return;
@@ -532,7 +532,7 @@ function DriverProfile() {
     try {
       const savedDriver = JSON.parse(localStorage.getItem("driver"));
       const driverId = savedDriver?.DriverID;
-      
+
       if (!driverId) {
         alert("No Driver ID found. Please log in again.");
         return;
@@ -553,7 +553,7 @@ function DriverProfile() {
       if (response.data.success) {
         alert("✅ Vehicle image updated!");
         const newImagePath = response.data.imagePath;
-        
+
         setFormData((prev) => ({
           ...prev,
           vehicleImage: newImagePath
@@ -563,11 +563,11 @@ function DriverProfile() {
           ...savedDriver,
           VehiclePicture: newImagePath,
         };
-        
+
         localStorage.setItem("driver", JSON.stringify(updatedDriver));
         localStorage.setItem("user", JSON.stringify(updatedDriver));
         window.dispatchEvent(new Event('userUpdated'));
-        
+
         setTimeout(() => {
           setFormData((prev) => ({
             ...prev,
@@ -587,7 +587,7 @@ function DriverProfile() {
 
   return (
     <>
-      <DriverHeader/>
+      <DriverHeader />
 
       <div className="profile-container">
         {/* Header Section */}
@@ -721,14 +721,14 @@ function DriverProfile() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="profile-picture-section">
                 <div className="profile-picture-container">
                   <div className="profile-picture">
                     {formData.profilePicture ? (
                       <img
-                        src={formData.profilePicture.startsWith('http') 
-                          ? formData.profilePicture 
+                        src={formData.profilePicture.startsWith('http')
+                          ? formData.profilePicture
                           : `http://localhost:3001${formData.profilePicture}?t=${Date.now()}`}
                         alt="Profile"
                         className="profile-img"
@@ -738,7 +738,7 @@ function DriverProfile() {
                         }}
                       />
                     ) : null}
-                    <span 
+                    <span
                       className="profile-number"
                       style={{ display: formData.profilePicture ? 'none' : 'block' }}
                     >
@@ -764,13 +764,13 @@ function DriverProfile() {
               {/* Privacy Panel - Left */}
               <div className="privacy-panel">
                 <h2 className="panel-title">Privacy</h2>
-                
+
                 <div className="form-group">
                   <label className="form-label">Contact No.</label>
                   <div className="phone-input-container">
                     <div className="country-flag">🇵🇭</div>
                     <span className="country-code">+63</span>
-                    <input 
+                    <input
                       type="tel"
                       className="phone-input"
                       value={formData.contactNo}
@@ -780,11 +780,11 @@ function DriverProfile() {
                     <span className="edit-icon">✏️</span>
                   </div>
                 </div>
-                
+
                 <div className="form-group">
                   <label className="form-label">Email Address</label>
                   <div className="email-input-container">
-                    <input 
+                    <input
                       type="email"
                       className="email-input"
                       value={formData.email}
@@ -795,7 +795,7 @@ function DriverProfile() {
                     <span className="edit-icon">✏️</span>
                   </div>
                 </div>
-                
+
                 <button className="yellow-btn confirm-change-btn" onClick={handleSaveChanges}>
                   Confirm Change
                 </button>
@@ -808,7 +808,7 @@ function DriverProfile() {
 
               <div className="car-panel">
                 <h2 className="panel-title">Car Information</h2>
-                
+
                 {/* Car Details in a Card Layout */}
                 <div className="car-details-card">
                   {/* Car Brand */}
@@ -833,7 +833,7 @@ function DriverProfile() {
                       ) : (
                         <div className="display-mode">
                           <span className="car-info-value">{formData.carBrand || "Not set"}</span>
-                          <button 
+                          <button
                             className="edit-btn car-edit-btn"
                             onClick={() => startEditing('carBrand')}
                           >
@@ -843,7 +843,7 @@ function DriverProfile() {
                       )}
                     </div>
                   </div>
-                  
+
                   {/* Car Model */}
                   <div className="car-info-item">
                     <label className="car-info-label">Car Model</label>
@@ -866,7 +866,7 @@ function DriverProfile() {
                       ) : (
                         <div className="display-mode">
                           <span className="car-info-value">{formData.carModel || "Not set"}</span>
-                          <button 
+                          <button
                             className="edit-btn car-edit-btn"
                             onClick={() => startEditing('carModel')}
                           >
@@ -876,7 +876,7 @@ function DriverProfile() {
                       )}
                     </div>
                   </div>
-                  
+
                   {/* Plate Number */}
                   <div className="car-info-item">
                     <label className="car-info-label">Plate Number</label>
@@ -901,7 +901,7 @@ function DriverProfile() {
                           <span className="car-info-value plate-number">
                             {formData.plateNumber || "Not set"}
                           </span>
-                          <button 
+                          <button
                             className="edit-btn car-edit-btn"
                             onClick={() => startEditing('plateNumber')}
                           >
@@ -921,7 +921,7 @@ function DriverProfile() {
                       <h3 className="image-upload-title">Vehicle Image</h3>
                       <span className="image-required-badge">Required</span>
                     </div>
-                    
+
                     <div className="image-upload-container">
                       <div className="image-preview">
                         {formData.vehicleImage ? (
@@ -937,7 +937,7 @@ function DriverProfile() {
                                 e.currentTarget.style.display = "block";
                               }}
                             />
-                            <button 
+                            <button
                               className="replace-image-btn"
                               onClick={() => document.querySelector('.vehicle-file-input').click()}
                             >
@@ -952,7 +952,7 @@ function DriverProfile() {
                           </div>
                         )}
                       </div>
-                      
+
                       <label className="image-upload-label">
                         <span className="upload-btn primary-upload-btn">
                           {formData.vehicleImage ? 'Change Vehicle Image' : 'Upload Vehicle Image'}
@@ -973,7 +973,7 @@ function DriverProfile() {
                       <h3 className="image-upload-title">Driver's License</h3>
                       <span className="image-required-badge">Required</span>
                     </div>
-                    
+
                     <div className="image-upload-container">
                       <div className="image-preview">
                         {formData.licenseImage ? (
@@ -987,7 +987,7 @@ function DriverProfile() {
                                 e.target.nextSibling.style.display = 'flex';
                               }}
                             />
-                            <button 
+                            <button
                               className="replace-image-btn"
                               onClick={() => document.querySelector('.license-file-input').click()}
                             >
@@ -1002,7 +1002,7 @@ function DriverProfile() {
                           </div>
                         )}
                       </div>
-                      
+
                       <label className="image-upload-label">
                         <span className="upload-btn primary-upload-btn">
                           {formData.licenseImage ? 'Change License Image' : 'Upload License'}
@@ -1017,7 +1017,7 @@ function DriverProfile() {
                     </div>
                   </div>
                 </div>
-                
+
                 <button className="yellow-btn confirm-car-btn" onClick={handleCarInfoChange}>
                   Update Car Information
                 </button>
@@ -1028,117 +1028,116 @@ function DriverProfile() {
 
               {/* Change Password Panel - Right */}
               {/* Change Password Panel - Right */}
-                <div className="password-panel">
-                  <div className="password-header">
-                    <h2 className="panel-title">Change Password</h2>
-                    <div className="password-security-badge">
-                      <span className="security-icon">🔒</span>
-                      Security
-                    </div>
-                  </div>
-                  
-                  <div className="password-form-card">
-                    <div className="form-group">
-                      <label className="form-label">
-                        Current Password
-                        <span className="required-asterisk">*</span>
-                      </label>
-                      <div className="password-input-container">
-                        <input 
-                          type="password"
-                          className="password-input"
-                          value={formData.currentPassword}
-                          onChange={handleInputChange}
-                          name="currentPassword"
-                          placeholder="Enter current password"
-                        />
-                        <span className="input-icon">🔑</span>
-                      </div>
-                    </div>
-                    
-                    <div className="form-group">
-                      <label className="form-label">
-                        New Password
-                        <span className="required-asterisk">*</span>
-                      </label>
-                      <div className="password-input-container">
-                        <input 
-                          type="password"
-                          className="password-input"
-                          value={formData.newPassword}
-                          onChange={handleInputChange}
-                          name="newPassword"
-                          placeholder="Enter new password"
-                        />
-                        <span className="input-icon">🔄</span>
-                      </div>
-                      {formData.newPassword && (
-                        <div className="password-strength">
-                          <div className={`strength-bar ${formData.newPassword.length >= 8 ? 'strong' : 'weak'}`}></div>
-                          <span className="strength-text">
-                            {formData.newPassword.length >= 8 ? 'Strong password' : 'Weak password'}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="form-group">
-                      <label className="form-label">
-                        Confirm New Password
-                        <span className="required-asterisk">*</span>
-                      </label>
-                      <div className="password-input-container">
-                        <input 
-                          type="password"
-                          className={`password-input ${formData.confirmPassword && formData.newPassword !== formData.confirmPassword ? 'error' : ''}`}
-                          value={formData.confirmPassword}
-                          onChange={handleInputChange}
-                          name="confirmPassword"
-                          placeholder="Confirm new password"
-                        />
-                        <span className="input-icon">✅</span>
-                      </div>
-                      {formData.confirmPassword && formData.newPassword !== formData.confirmPassword && (
-                        <div className="error-message">
-                          ❌ Passwords do not match
-                        </div>
-                      )}
-                      {formData.confirmPassword && formData.newPassword === formData.confirmPassword && (
-                        <div className="success-message">
-                          ✅ Passwords match
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="password-requirements">
-                      <h4 className="requirements-title">Password Requirements:</h4>
-                      <ul className="requirements-list">
-                        <li className={formData.newPassword.length >= 8 ? 'met' : ''}>
-                          {formData.newPassword.length >= 8 ? '✓' : '○'} At least 8 characters
-                        </li>
-                        <li className={/[A-Z]/.test(formData.newPassword) ? 'met' : ''}>
-                          {/[A-Z]/.test(formData.newPassword) ? '✓' : '○'} One uppercase letter
-                        </li>
-                        <li className={/[0-9]/.test(formData.newPassword) ? 'met' : ''}>
-                          {/[0-9]/.test(formData.newPassword) ? '✓' : '○'} One number
-                        </li>
-                        <li className={/[!@#$%^&*]/.test(formData.newPassword) ? 'met' : ''}>
-                          {/[!@#$%^&*]/.test(formData.newPassword) ? '✓' : '○'} One special character
-                        </li>
-                      </ul>
-                    </div>
-                    
-                    <button 
-                      className={`yellow-btn confirm-password-btn ${
-                        !formData.currentPassword || !formData.newPassword || !formData.confirmPassword || formData.newPassword !== formData.confirmPassword ? 'disabled' : ''
-                      }`}
-                      onClick={handlePasswordChange}
-                      disabled={!formData.currentPassword || !formData.newPassword || !formData.confirmPassword || formData.newPassword !== formData.confirmPassword}
-                    >
-                      Update Password
-                    </button>
+              <div className="password-panel">
+                <div className="password-header">
+                  <h2 className="panel-title">Change Password</h2>
+                  <div className="password-security-badge">
+                    <span className="security-icon">🔒</span>
+                    Security
                   </div>
                 </div>
+
+                <div className="password-form-card">
+                  <div className="form-group">
+                    <label className="form-label">
+                      Current Password
+                      <span className="required-asterisk">*</span>
+                    </label>
+                    <div className="password-input-container">
+                      <input
+                        type="password"
+                        className="password-input"
+                        value={formData.currentPassword}
+                        onChange={handleInputChange}
+                        name="currentPassword"
+                        placeholder="Enter current password"
+                      />
+                      <span className="input-icon">🔑</span>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">
+                      New Password
+                      <span className="required-asterisk">*</span>
+                    </label>
+                    <div className="password-input-container">
+                      <input
+                        type="password"
+                        className="password-input"
+                        value={formData.newPassword}
+                        onChange={handleInputChange}
+                        name="newPassword"
+                        placeholder="Enter new password"
+                      />
+                      <span className="input-icon">🔄</span>
+                    </div>
+                    {formData.newPassword && (
+                      <div className="password-strength">
+                        <div className={`strength-bar ${formData.newPassword.length >= 8 ? 'strong' : 'weak'}`}></div>
+                        <span className="strength-text">
+                          {formData.newPassword.length >= 8 ? 'Strong password' : 'Weak password'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">
+                      Confirm New Password
+                      <span className="required-asterisk">*</span>
+                    </label>
+                    <div className="password-input-container">
+                      <input
+                        type="password"
+                        className={`password-input ${formData.confirmPassword && formData.newPassword !== formData.confirmPassword ? 'error' : ''}`}
+                        value={formData.confirmPassword}
+                        onChange={handleInputChange}
+                        name="confirmPassword"
+                        placeholder="Confirm new password"
+                      />
+                      <span className="input-icon">✅</span>
+                    </div>
+                    {formData.confirmPassword && formData.newPassword !== formData.confirmPassword && (
+                      <div className="error-message">
+                        ❌ Passwords do not match
+                      </div>
+                    )}
+                    {formData.confirmPassword && formData.newPassword === formData.confirmPassword && (
+                      <div className="success-message">
+                        ✅ Passwords match
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="password-requirements">
+                    <h4 className="requirements-title">Password Requirements:</h4>
+                    <ul className="requirements-list">
+                      <li className={formData.newPassword.length >= 8 ? 'met' : ''}>
+                        {formData.newPassword.length >= 8 ? '✓' : '○'} At least 8 characters
+                      </li>
+                      <li className={/[A-Z]/.test(formData.newPassword) ? 'met' : ''}>
+                        {/[A-Z]/.test(formData.newPassword) ? '✓' : '○'} One uppercase letter
+                      </li>
+                      <li className={/[0-9]/.test(formData.newPassword) ? 'met' : ''}>
+                        {/[0-9]/.test(formData.newPassword) ? '✓' : '○'} One number
+                      </li>
+                      <li className={/[!@#$%^&*]/.test(formData.newPassword) ? 'met' : ''}>
+                        {/[!@#$%^&*]/.test(formData.newPassword) ? '✓' : '○'} One special character
+                      </li>
+                    </ul>
+                  </div>
+
+                  <button
+                    className={`yellow-btn confirm-password-btn ${!formData.currentPassword || !formData.newPassword || !formData.confirmPassword || formData.newPassword !== formData.confirmPassword ? 'disabled' : ''
+                      }`}
+                    onClick={handlePasswordChange}
+                    disabled={!formData.currentPassword || !formData.newPassword || !formData.confirmPassword || formData.newPassword !== formData.confirmPassword}
+                  >
+                    Update Password
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -1150,7 +1149,7 @@ function DriverProfile() {
               <div className="success-icon">✓</div>
               <h2 className="success-title">Success!</h2>
               <p className="success-message">Your Email / Contact No. successfully changed</p>
-              <button 
+              <button
                 className="yellow-btn back-home-btn"
                 onClick={() => setActiveSection("profile")}
               >
@@ -1166,7 +1165,7 @@ function DriverProfile() {
               <div className="success-icon">✓</div>
               <h2 className="success-title">Password Changed!</h2>
               <p className="success-message">Your password successfully changed</p>
-              <button 
+              <button
                 className="yellow-btn back-home-btn"
                 onClick={() => setActiveSection("profile")}
               >
@@ -1182,7 +1181,7 @@ function DriverProfile() {
               <div className="success-icon">✓</div>
               <h2 className="success-title">Car Info Updated!</h2>
               <p className="success-message">Your car information successfully updated</p>
-              <button 
+              <button
                 className="yellow-btn back-home-btn"
                 onClick={() => setActiveSection("profile")}
               >

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import DriverHeader from '../../src/DriverHeader.jsx';
 import { useRequireDriver } from "../utils/authGuards.jsx"; // add import
-import "./DriverBookingStatus.css";
+import "./DriverCss/DriverBookingStatus.css";
 
 function DriverBookingStatus() {
   useRequireDriver(); // redirect non-drivers
@@ -198,9 +198,9 @@ function DriverBookingStatus() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="route-divider"></div>
-                    
+
                     <div className="route-point dropoff">
                       <div className="route-marker">🎯</div>
                       <div className="route-info">
@@ -235,7 +235,7 @@ function DriverBookingStatus() {
                     <div className="fare-label">Fare</div>
                     <div className="fare-amount">₱{booking.Fare || "0"}</div>
                   </div>
-                  
+
                   <div className="actions-section">
                     <label className="status-label">Update Status</label>
                     <select

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom"; // added
-import "./DriverBooking.css";
+import "./DriverCss/DriverBooking.css";
 import DriverHeader from "../../src/DriverHeader.jsx";
 import { useRequireDriver } from "../utils/authGuards.jsx"; // add this import
 
@@ -177,9 +177,9 @@ export default function DriverBooking() {
       .map((part) => part.charAt(0))
       .join("")
       .toUpperCase();
-  
+
   if (loading) return <p>Loading bookings...</p>;
-  
+
   return (
     <>
       <DriverHeader />
@@ -249,57 +249,57 @@ export default function DriverBooking() {
                 ? (rawImage.startsWith('http') ? rawImage : `http://localhost:3001${rawImage}`)
                 : "/profile-pictures/default.jpg";
 
-               return (
-                 <div key={booking.BookingID} className="booking-card">
-                   <div className="booking-header">
-                     <div className="passenger-info">
-                       <div className="avatar-container">
-                         <img
+              return (
+                <div key={booking.BookingID} className="booking-card">
+                  <div className="booking-header">
+                    <div className="passenger-info">
+                      <div className="avatar-container">
+                        <img
                           src={passengerImage}
-                           alt={booking.PassengerName || "Passenger"}
-                           className="passenger-image"
-                           onError={(e) => {
+                          alt={booking.PassengerName || "Passenger"}
+                          className="passenger-image"
+                          onError={(e) => {
                             // fallback to default avatar if backend image fails
                             e.target.src = "/profile-pictures/default.jpg";
                             e.target.style.objectFit = "cover";
-                           }}
-                         />
-                         <div className="avatar-fallback" aria-hidden>
-                           {getInitials(booking.PassengerName)}
-                         </div>
-                       </div>
-                       <div className="passenger-details">
-                         <span className="label">Passenger</span>
-                         <h3 className="passenger-name">{booking.PassengerName || "Unknown"}</h3>
-                         {booking.PhoneNumber && (
-                           <div className="passenger-phone">{sanitizePhone(booking.PhoneNumber)}</div>
-                         )}
-                       </div>
-                     </div>
-                     <div className="booking-badge pending">Pending</div>
-                   </div>
+                          }}
+                        />
+                        <div className="avatar-fallback" aria-hidden>
+                          {getInitials(booking.PassengerName)}
+                        </div>
+                      </div>
+                      <div className="passenger-details">
+                        <span className="label">Passenger</span>
+                        <h3 className="passenger-name">{booking.PassengerName || "Unknown"}</h3>
+                        {booking.PhoneNumber && (
+                          <div className="passenger-phone">{sanitizePhone(booking.PhoneNumber)}</div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="booking-badge pending">Pending</div>
+                  </div>
 
-                   <div className="trip-details">
-                     <div className="route-info">
-                       <div className="route-item">
-                         <span className="route-label">From</span>
--                        <p className="route-text">{pickup}</p>
-+                        <p className="route-text">{pickupArea}{pickup ? ` — ${pickup}` : ""}</p>
-                       </div>
-                       <div className="route-item">
-                         <span className="route-label">To</span>
--                        <p className="route-text">{dropoff}</p>
-+                        <p className="route-text">{dropoffArea}{dropoff ? ` — ${dropoff}` : ""}</p>
-                       </div>
-                     </div>
- 
-                     <div className="datetime-info">
-                       <span>{booking.RideDate}</span> | <span>{booking.RideTime}</span>
-                     </div>
-                   </div>
- 
-                   <div className="action-buttons">
-                     <button
+                  <div className="trip-details">
+                    <div className="route-info">
+                      <div className="route-item">
+                        <span className="route-label">From</span>
+                        -                        <p className="route-text">{pickup}</p>
+                        +                        <p className="route-text">{pickupArea}{pickup ? ` — ${pickup}` : ""}</p>
+                      </div>
+                      <div className="route-item">
+                        <span className="route-label">To</span>
+                        -                        <p className="route-text">{dropoff}</p>
+                        +                        <p className="route-text">{dropoffArea}{dropoff ? ` — ${dropoff}` : ""}</p>
+                      </div>
+                    </div>
+
+                    <div className="datetime-info">
+                      <span>{booking.RideDate}</span> | <span>{booking.RideTime}</span>
+                    </div>
+                  </div>
+
+                  <div className="action-buttons">
+                    <button
                       className="btn-reject"
                       onClick={() => handleReject(booking.BookingID)}
                       disabled={loadingId !== null}
@@ -322,9 +322,9 @@ export default function DriverBooking() {
                     )}
                   </div>
                 </div>
-               );
-             })}
-           </div>
+              );
+            })}
+          </div>
 
           {filteredBookings.length === 0 && (
             <div className="no-bookings">

@@ -8,6 +8,8 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import { generateToken, verifyToken } from "./auth.js";
 import {
   uploadProfilePicture,
@@ -16,8 +18,18 @@ import {
   uploadInquiry,
   uploadDriverLicense
 } from "./cloudinary.js";
+import { generateVerificationCode, sendVerificationEmail } from "./emailService.js";
 
-dotenv.config();
+// Get the directory name in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables from root directory
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
+// Temporary storage for verification codes (email -> {code, userData, expiresAt})
+// In production, use Redis or database
+const verificationCodes = new Map();
 
 console.log("🔥 THIS SERVER FILE IS RUNNING");
 
@@ -29,26 +41,37 @@ app.use(
     contentSecurityPolicy:
       process.env.NODE_ENV === "production"
         ? {
-            directives: {
-              defaultSrc: ["'self'"],
-              baseUri: ["'self'"],
-              frameAncestors: ["'none'"],
-              objectSrc: ["'none'"],
-              imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
-              styleSrc: ["'self'", "'unsafe-inline'"],
-              scriptSrc: ["'self'"],
-              connectSrc: ["'self'", process.env.CLIENT_ORIGIN || "http://localhost:5173"],
-            },
-          }
+          directives: {
+            defaultSrc: ["'self'"],
+            baseUri: ["'self'"],
+            frameAncestors: ["'none'"],
+            objectSrc: ["'none'"],
+            imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            scriptSrc: ["'self'"],
+            connectSrc: ["'self'", process.env.CLIENT_ORIGIN || "http://localhost:5173"],
+          },
+        }
         : false,
     crossOriginResourcePolicy: { policy: "cross-origin" },
     referrerPolicy: { policy: "no-referrer" },
   })
 );
 
+// CORS Configuration
+const allowedOrigins = ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", process.env.CLIENT_ORIGIN].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or Postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("❌ Not allowed by CORS"));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token", "X-Requested-With"],
@@ -74,26 +97,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Note: Static file serving removed - images served from Cloudinary
-
-const allowedOrigins = ["http://localhost:5173", "http://localhost:5174", process.env.CLIENT_ORIGIN].filter(Boolean);
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or Postman)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("❌ Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
-app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// Static file serving for uploaded images (local storage)
+const uploadsPath = path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(uploadsPath));
+console.log('📁 Serving static files from:', uploadsPath);
 
 // JWT-based authentication (replaces session)
 // Token is sent in Authorization header or stored in httpOnly cookie
@@ -109,21 +116,21 @@ app.post("/api/login", async (req, res) => {
     if (result.length > 0) {
       const passenger = result[0];
       const isMatch = await bcrypt.compare(password, passenger.Password);
-      
+
       if (isMatch) {
-        const token = generateToken({ 
-          id: passenger.PassengerID, 
-          email: passenger.Email, 
-          role: 'passenger' 
+        const token = generateToken({
+          id: passenger.PassengerID,
+          email: passenger.Email,
+          role: 'passenger'
         });
-        
+
         res.cookie('token', token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
           maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
-        
+
         res.json({ success: true, token, user: result[0] });
       } else {
         res.status(401).json({ success: false, message: "Invalid credentials" });
@@ -140,7 +147,7 @@ app.post("/api/login", async (req, res) => {
 // Check login status (JWT version)
 app.get("/api/check-auth", (req, res) => {
   let token = null;
-  
+
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     token = authHeader.substring(7);
@@ -200,7 +207,7 @@ app.get("/api/passenger/signup", (req, res) => {
 
 
 
-// Passenger Login Route - JWT VERSION
+// Passenger Login Route - JWT VERSION with Email Verification
 app.post('/api/passenger/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -223,27 +230,14 @@ app.post('/api/passenger/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid password' });
     }
 
-    // Generate JWT token
-    const token = generateToken({
-      id: passenger.PassengerID,
-      email: passenger.Email,
-      firstName: passenger.FirstName,
-      lastName: passenger.LastName,
-      role: 'passenger'
-    });
+    // Generate 6-digit verification code
+    const verificationCode = generateVerificationCode();
+    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-    // Set httpOnly cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
-
-    res.json({
-      message: 'Login successful',
-      token,
-      passenger: {
+    // Store verification code with passenger data
+    verificationCodes.set(email, {
+      code: verificationCode,
+      userData: {
         PassengerID: passenger.PassengerID,
         FirstName: passenger.FirstName,
         LastName: passenger.LastName,
@@ -251,6 +245,23 @@ app.post('/api/passenger/login', async (req, res) => {
         PhoneNumber: passenger.PhoneNumber || "",
         ProfilePicture: passenger.ProfilePicture || "",
       },
+      userType: 'passenger',
+      expiresAt
+    });
+
+    // Send verification email
+    await sendVerificationEmail(
+      email,
+      verificationCode,
+      `${passenger.FirstName} ${passenger.LastName}`
+    );
+
+    console.log(`✅ Verification code sent to ${email}`);
+
+    res.json({
+      message: 'Verification code sent to your email',
+      requiresVerification: true,
+      email: email
     });
   } catch (err) {
     console.error('❌ Database error:', err);
@@ -258,6 +269,96 @@ app.post('/api/passenger/login', async (req, res) => {
   }
 });
 
+// Passenger - Verify code
+app.post('/api/passenger/verify-code', async (req, res) => {
+  const { email, code } = req.body;
+
+  if (!email || !code) {
+    return res.status(400).json({ message: 'Email and code are required' });
+  }
+
+  const storedData = verificationCodes.get(email);
+
+  if (!storedData) {
+    return res.status(400).json({ message: 'No verification code found. Please login again.' });
+  }
+
+  // Check if code expired
+  if (Date.now() > storedData.expiresAt) {
+    verificationCodes.delete(email);
+    return res.status(400).json({ message: 'Verification code expired. Please login again.' });
+  }
+
+  // Verify code
+  if (storedData.code !== code) {
+    return res.status(400).json({ message: 'Invalid verification code' });
+  }
+
+  // Code is valid - generate JWT token
+  const passenger = storedData.userData;
+  const token = generateToken({
+    id: passenger.PassengerID,
+    email: passenger.Email,
+    firstName: passenger.FirstName,
+    lastName: passenger.LastName,
+    role: 'passenger'
+  });
+
+  // Set httpOnly cookie
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  });
+
+  // Clear the verification code
+  verificationCodes.delete(email);
+
+  res.json({
+    message: 'Verification successful',
+    token,
+    passenger
+  });
+});
+
+// Passenger - Resend verification code
+app.post('/api/passenger/resend-code', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  const storedData = verificationCodes.get(email);
+
+  if (!storedData) {
+    return res.status(400).json({ message: 'No verification session found. Please login again.' });
+  }
+
+  // Generate new code
+  const newCode = generateVerificationCode();
+  const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+  // Update stored data
+  storedData.code = newCode;
+  storedData.expiresAt = expiresAt;
+  verificationCodes.set(email, storedData);
+
+  // Send new email
+  const userData = storedData.userData;
+  const userName = storedData.userType === 'passenger'
+    ? `${userData.FirstName} ${userData.LastName}`
+    : `${userData.FirstName} ${userData.LastName}`;
+
+  await sendVerificationEmail(email, newCode, userName);
+
+  console.log(`✅ New verification code sent to ${email}`);
+
+  res.json({
+    message: 'Verification code resent successfully'
+  });
+});
 
 
 // Default route
@@ -468,28 +569,14 @@ app.post("/api/driver/login", async (req, res) => {
     if (!isMatch)
       return res.status(401).json({ message: "Invalid credentials" });
 
-    // Generate JWT token
-    const token = generateToken({
-      id: driver.DriverID,
-      email: driver.Email,
-      firstName: driver.FirstName,
-      lastName: driver.LastName,
-      role: 'driver'
-    });
+    // Generate 6-digit verification code
+    const verificationCode = generateVerificationCode();
+    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-    // Set httpOnly cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
-
-    // Return driver data in consistent format
-    res.json({ 
-      message: "Login successful",
-      token,
-      driver: {
+    // Store verification code with driver data
+    verificationCodes.set(email, {
+      code: verificationCode,
+      userData: {
         DriverID: driver.DriverID,
         FirstName: driver.FirstName,
         LastName: driver.LastName,
@@ -500,13 +587,120 @@ app.post("/api/driver/login", async (req, res) => {
         VehicleType: driver.VehicleType,
         PlateNumber: driver.PlateNumber,
         Status: driver.Status
-      }
+      },
+      userType: 'driver',
+      expiresAt
+    });
+
+    // Send verification email
+    await sendVerificationEmail(
+      email,
+      verificationCode,
+      `${driver.FirstName} ${driver.LastName}`
+    );
+
+    console.log(`✅ Verification code sent to ${email}`);
+
+    res.json({
+      message: 'Verification code sent to your email',
+      requiresVerification: true,
+      email: email
     });
   } catch (err) {
     console.error("Database error:", err);
     return res.status(500).json({ message: "Database error" });
   }
 });
+
+// Driver - Verify code
+app.post('/api/driver/verify-code', async (req, res) => {
+  const { email, code } = req.body;
+
+  if (!email || !code) {
+    return res.status(400).json({ message: 'Email and code are required' });
+  }
+
+  const storedData = verificationCodes.get(email);
+
+  if (!storedData) {
+    return res.status(400).json({ message: 'No verification code found. Please login again.' });
+  }
+
+  // Check if code expired
+  if (Date.now() > storedData.expiresAt) {
+    verificationCodes.delete(email);
+    return res.status(400).json({ message: 'Verification code expired. Please login again.' });
+  }
+
+  // Verify code
+  if (storedData.code !== code) {
+    return res.status(400).json({ message: 'Invalid verification code' });
+  }
+
+  // Code is valid - generate JWT token
+  const driver = storedData.userData;
+  const token = generateToken({
+    id: driver.DriverID,
+    email: driver.Email,
+    firstName: driver.FirstName,
+    lastName: driver.LastName,
+    role: 'driver'
+  });
+
+  // Set httpOnly cookie
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  });
+
+  // Clear the verification code
+  verificationCodes.delete(email);
+
+  res.json({
+    message: 'Verification successful',
+    token,
+    driver
+  });
+});
+
+// Driver - Resend verification code
+app.post('/api/driver/resend-code', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  const storedData = verificationCodes.get(email);
+
+  if (!storedData) {
+    return res.status(400).json({ message: 'No verification session found. Please login again.' });
+  }
+
+  // Generate new code
+  const newCode = generateVerificationCode();
+  const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+  // Update stored data
+  storedData.code = newCode;
+  storedData.expiresAt = expiresAt;
+  verificationCodes.set(email, storedData);
+
+  // Send new email
+  const userData = storedData.userData;
+  const userName = `${userData.FirstName} ${userData.LastName}`;
+
+  await sendVerificationEmail(email, newCode, userName);
+
+  console.log(`✅ New verification code sent to ${email}`);
+
+  res.json({
+    message: 'Verification code resent successfully'
+  });
+});
+
 app.get("/api/driver/login", (req, res) => {
   res.send("✅ You reached the Driver SignUp route! Use POST to submit data.");
 });

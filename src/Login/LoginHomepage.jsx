@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import manDrivingIMG from '../assets/driving-homepage.jpg';
-import './LoginHomepage.css';
+import './PassengerLogin/PassengerloginCss/LoginHomepage.css';
 import Header from '../Header';
 
 function LoginHomepage() {
@@ -50,7 +50,7 @@ function LoginHomepage() {
             <h2>Login to access your account</h2>
             <div className="button-group">
               <button className="btn rider" onClick={handlePassengerClick}>
-                Rider
+                Passenger
               </button>
               <button className="btn driver" onClick={handleDriverClick}>
                 Driver

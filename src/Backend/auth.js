@@ -1,8 +1,15 @@
 // JWT Authentication middleware for serverless
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-dotenv.config();
+// Get the directory name in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables from root directory
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'ambaturide_jwt_secret_change_in_production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
@@ -26,7 +33,7 @@ export const authenticate = (req, res, next) => {
   try {
     // Get token from Authorization header or cookie
     let token = null;
-    
+
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       token = authHeader.substring(7);
@@ -56,7 +63,7 @@ export const authenticate = (req, res, next) => {
 export const optionalAuth = (req, res, next) => {
   try {
     let token = null;
-    
+
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       token = authHeader.substring(7);
@@ -70,7 +77,7 @@ export const optionalAuth = (req, res, next) => {
         req.user = decoded;
       }
     }
-    
+
     next();
   } catch (error) {
     next();

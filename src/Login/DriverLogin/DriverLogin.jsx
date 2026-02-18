@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import manDrivingIMG from '../../assets/driving-homepage.jpg';
 import './DriverLogin.css';
 import DriverHeader from '../../../src/DriverHeader.jsx';
+import VerificationCode from '../VerificationCode';
 
 function DriverLogin() {
   const navigate = useNavigate();
@@ -11,6 +12,8 @@ function DriverLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+  const [showVerification, setShowVerification] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,23 +49,59 @@ function DriverLogin() {
         return;
       }
 
-      // ✅ Save logged-in driver to localStorage
-      // Use data.driver instead of undefined driverData variable
-      const driverData = data.driver || data; // Handle both response formats
-      
+      // Check if verification is required
+      if (data.requiresVerification) {
+        setVerificationEmail(data.email || email);
+        setShowVerification(true);
+        return;
+      }
+
+      // Legacy fallback (if verification is disabled)
+      const driverData = data.driver || data;
       localStorage.setItem('user', JSON.stringify(driverData));
       localStorage.setItem('driver', JSON.stringify(driverData));
       localStorage.removeItem('isAdmin');
-      
       console.log('✅ Driver login success:', data);
-
-      // ✅ Navigate to driver dashboard
       navigate('/DriverBooking');
     } catch (err) {
       console.error('❌ Error:', err);
       setError('Server error. Please try again later.');
     }
   };
+
+  const handleVerificationSuccess = (data) => {
+    // Save logged-in driver to localStorage
+    localStorage.setItem('user', JSON.stringify(data.driver));
+    localStorage.setItem('driver', JSON.stringify(data.driver));
+    localStorage.removeItem('isAdmin');
+    console.log('✅ Driver verification success:', data);
+    navigate('/DriverBooking');
+  };
+
+  const handleResendCode = async () => {
+    const response = await fetch('http://localhost:3001/api/driver/resend-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: verificationEmail }),
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to resend code');
+    }
+  };
+
+  // If verification is required, show verification UI
+  if (showVerification) {
+    return (
+      <VerificationCode
+        email={verificationEmail}
+        userType="driver"
+        onVerificationSuccess={handleVerificationSuccess}
+        onResendCode={handleResendCode}
+      />
+    );
+  }
 
   return (
     <>

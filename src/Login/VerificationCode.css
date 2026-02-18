@@ -1,0 +1,214 @@
+.verification-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+}
+
+.verification-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+}
+
+.verification-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.verification-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 12px;
+}
+
+.verification-subtitle {
+    font-size: 16px;
+    color: #6b7280;
+    margin-bottom: 32px;
+    line-height: 1.5;
+}
+
+.verification-subtitle strong {
+    color: #4f46e5;
+    font-weight: 600;
+}
+
+.verification-error {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    font-size: 14px;
+}
+
+.verification-form {
+    margin-bottom: 32px;
+}
+
+.code-inputs {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.code-input {
+    width: 56px;
+    height: 64px;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center !important;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background-color: #f9fafb;
+    color: #1f2937;
+    transition: all 0.2s ease;
+    outline: none;
+    padding: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin: 0;
+    box-sizing: border-box;
+    display: block;
+    line-height: 64px;
+    vertical-align: middle;
+    letter-spacing: 0;
+    text-indent: 0 !important;
+    direction: ltr;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}
+
+.code-input:focus {
+    border-color: #4f46e5;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    transform: scale(1.05);
+}
+
+.code-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.verify-button {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.verify-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+}
+
+.verify-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.resend-section {
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.resend-section p {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.resend-timer {
+    color: #9ca3af;
+    font-weight: 600;
+}
+
+.resend-button {
+    background: none;
+    border: none;
+    color: #4f46e5;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.resend-button:hover:not(:disabled) {
+    background-color: #eef2ff;
+    color: #4338ca;
+}
+
+.resend-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+    .verification-card {
+        padding: 30px 20px;
+    }
+
+    .verification-title {
+        font-size: 24px;
+    }
+
+    .verification-subtitle {
+        font-size: 14px;
+    }
+
+    .code-inputs {
+        gap: 8px;
+    }
+
+    .code-input {
+        width: 48px;
+        height: 56px;
+        font-size: 20px;
+        padding: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        line-height: 56px;
+        letter-spacing: 0;
+        text-align: center !important;
+        text-indent: 0 !important;
+    }
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.verification-card {
+    animation: fadeIn 0.4s ease-out;
+}
