@@ -4,6 +4,23 @@ import manDrivingIMG from '../../assets/driving-homepage.jpg';
 import './PassengerloginCss/PassengerSignUp.css';
 import Header from '../../Header'
 
+const getPasswordStrength = (pwd) => {
+  const criteria = {
+    length: pwd.length >= 8,
+    uppercase: /[A-Z]/.test(pwd),
+    lowercase: /[a-z]/.test(pwd),
+    number: /[0-9]/.test(pwd),
+    symbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pwd),
+  };
+  const score = Object.values(criteria).filter(Boolean).length;
+  let level = '';
+  if (pwd.length === 0) level = '';
+  else if (score <= 2) level = 'weak';
+  else if (score <= 4) level = 'medium';
+  else level = 'strong';
+  return { level, criteria, score };
+};
+
 function PassengerSignUp() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -12,6 +29,8 @@ function PassengerSignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
+
+  const { level: strengthLevel, criteria } = getPasswordStrength(password);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -117,6 +136,27 @@ function PassengerSignUp() {
                     {showPassword ? "Hide" : "Show"}
                   </button>
                 </div>
+                {password.length > 0 && (
+                  <>
+                    <div className="strength-bar-wrapper">
+                      <div className={`strength-bar strength-bar--${strengthLevel}`}>
+                        <span /><span /><span />
+                      </div>
+                      <span className={`strength-label strength-label--${strengthLevel}`}>
+                        {strengthLevel === 'weak' && '⚠ Weak'}
+                        {strengthLevel === 'medium' && '◑ Medium'}
+                        {strengthLevel === 'strong' && '✔ Strong'}
+                      </span>
+                    </div>
+                    <ul className="password-requirements">
+                      <li className={criteria.length ? 'met' : ''}>At least 8 characters</li>
+                      <li className={criteria.uppercase ? 'met' : ''}>Uppercase letter (A–Z)</li>
+                      <li className={criteria.lowercase ? 'met' : ''}>Lowercase letter (a–z)</li>
+                      <li className={criteria.number ? 'met' : ''}>Number (0–9)</li>
+                      <li className={criteria.symbol ? 'met' : ''}>Symbol (!@#$%^&*…)</li>
+                    </ul>
+                  </>
+                )}
               </div>
               <div className="form-group">
                 <label htmlFor="confirmPassword">Confirm Password</label>
