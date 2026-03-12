@@ -10,45 +10,34 @@ function Header() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const updateUserFromStorage = () => {
-      // Try to get user from 'user' localStorage first, then fallback to 'passenger'
-      const savedUser = localStorage.getItem("user");
-      const savedPassenger = localStorage.getItem("passenger");
-      
-      if (savedUser) {
-        setUser(JSON.parse(savedUser));
-      } else if (savedPassenger) {
-        // If passenger exists but user doesn't, sync them
-        const passengerData = JSON.parse(savedPassenger);
-        setUser(passengerData);
-        localStorage.setItem("user", JSON.stringify(passengerData));
-      }
-    };
+  const updateUserFromStorage = () => {
+    const savedUser = localStorage.getItem("user");
+    const savedRole = localStorage.getItem("role");
 
-    // Initial load
-    updateUserFromStorage();
+    if (savedUser && savedRole) {
+      const parsedUser = JSON.parse(savedUser);
+      setUser({ ...parsedUser, role: savedRole });
+    } else {
+      setUser(null);
+    }
+  };
 
-    // Listen for storage changes (when profile picture is updated in another tab/component)
-    const handleStorageChange = (e) => {
-      if (e.key === "user" || e.key === "passenger") {
-        updateUserFromStorage();
-      }
-    };
+  updateUserFromStorage();
 
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Custom event listener for same-tab updates
-    const handleUserUpdate = () => {
+  const handleStorageChange = (e) => {
+    if (e.key === "user" || e.key === "role") {
       updateUserFromStorage();
-    };
-    
-    window.addEventListener('userUpdated', handleUserUpdate);
+    }
+  };
 
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('userUpdated', handleUserUpdate);
-    };
-  }, []);
+  window.addEventListener("storage", handleStorageChange);
+  window.addEventListener("userUpdated", updateUserFromStorage);
+
+  return () => {
+    window.removeEventListener("storage", handleStorageChange);
+    window.removeEventListener("userUpdated", updateUserFromStorage);
+  };
+}, []);
 
   const handleLogout = () => {
     localStorage.removeItem("user");

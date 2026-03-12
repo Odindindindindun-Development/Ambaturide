@@ -13,56 +13,64 @@ function DriverLogin() {
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+  e.preventDefault();
+  setError('');
 
-    // local admin shortcut
-    if (email === 'admin' && password === 'adminadmin') {
-      localStorage.setItem('isAdmin', 'true');
-      localStorage.setItem('user', JSON.stringify({ Email: email, role: 'admin' }));
-      // ensure driver flag is cleared for admin
-      localStorage.removeItem('driver');
-      navigate('/admin');
+  if (!email || !password) {
+    setError('Please fill in all fields');
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:3001/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+      credentials: 'include'
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      setError(data.message || 'Login failed');
       return;
     }
 
-    if (!email || !password) {
-      setError('Please fill in all fields');
-      return;
+    // ✅ Save user and role in localStorage
+    localStorage.setItem('user', JSON.stringify(data.user));
+    localStorage.setItem('role', data.role);
+
+    // ✅ Clear old flags
+    localStorage.removeItem('isAdmin');
+    localStorage.removeItem('driver');
+
+    // ✅ Navigate based on role
+    switch (data.role) {
+      case 'admin':
+        localStorage.setItem('isAdmin', 'true');
+        navigate('/admin');
+        break;
+
+      case 'driver':
+        localStorage.setItem('driver', JSON.stringify(data.user));
+        navigate('/DriverBooking');
+        break;
+
+      case 'passenger':
+        navigate('/PassengerHome');
+        break;
+
+      default:
+        setError('Unknown role');
     }
 
-    try {
-      const response = await fetch('http://localhost:3001/api/driver/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include'
-      });
+    console.log('✅ Login success:', data);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.message || 'Login failed');
-        return;
-      }
-
-      // ✅ Save logged-in driver to localStorage
-      // Use data.driver instead of undefined driverData variable
-      const driverData = data.driver || data; // Handle both response formats
-      
-      localStorage.setItem('user', JSON.stringify(driverData));
-      localStorage.setItem('driver', JSON.stringify(driverData));
-      localStorage.removeItem('isAdmin');
-      
-      console.log('✅ Driver login success:', data);
-
-      // ✅ Navigate to driver dashboard
-      navigate('/DriverBooking');
-    } catch (err) {
-      console.error('❌ Error:', err);
-      setError('Server error. Please try again later.');
-    }
-  };
+  } catch (err) {
+    console.error('❌ Login error:', err);
+    setError('Server error. Please try again later.');
+  }
+};
 
   return (
     <>

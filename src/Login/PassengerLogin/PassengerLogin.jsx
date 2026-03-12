@@ -14,53 +14,67 @@ function PassengerLogin() {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
   setError('');
+  console.log('🚀 Login attempt:', { email, password });
 
   if (!email || !password) {
     setError('Please fill in all fields');
     return;
   }
 
-  // quick admin shortcut — redirect to admin dashboard without server call
-  if (email === 'admin' && password === 'adminadmin') {
-    localStorage.setItem('isAdmin', 'true');
-    localStorage.setItem('user', JSON.stringify({ email: 'admin', role: 'admin' }));
-    navigate('/admin');
-    return;
-  }
-  
   try {
-  // After successful login in your passenger login component
-  const response = await fetch('http://localhost:3001/api/passenger/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-    credentials: 'include'
-  });
+    const response = await fetch('http://localhost:3001/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+      credentials: 'include'
+    });
 
-  const data = await response.json();
+    const data = await response.json();
+    console.log('📡 Response status:', response.status, 'OK?', response.ok, 'Data:', data);
 
-  if (!response.ok) {
-    setError(data.message || 'Login failed');
-    return;
-  }
+    if (!response.ok || !data.success) {
+      setError(data.message || 'Login failed');
+      console.error('❌ Login failed:', data.message);
+      return;
+    }
 
-  // ✅ Save logged-in passenger to localStorage
-  console.log("✅ Login response:", data); // Check what's actually returned
-  localStorage.setItem('passenger', JSON.stringify(data.passenger));
-  localStorage.setItem('user', JSON.stringify(data.passenger));
+    // Save user and role
+    localStorage.setItem('user', JSON.stringify(data.user));
+    localStorage.setItem('role', data.role);
 
-  console.log('✅ Passenger login success:', data);
+    // Clear old flags
+    localStorage.removeItem('isAdmin');
+    localStorage.removeItem('driver');
+    localStorage.removeItem('passenger');
 
-    navigate('/');
+    // Navigate by role
+    switch (data.role) {
+      case 'admin':
+        localStorage.setItem('isAdmin', 'true');
+        navigate('/admin');
+        break;
+      case 'driver':
+        localStorage.setItem('driver', JSON.stringify(data.user));
+        navigate('/DriverBooking');
+        break;
+      case 'passenger':
+        localStorage.setItem('passenger', JSON.stringify(data.user));
+        navigate('/');
+        break;
+      default:
+        setError('Unknown role');
+    }
+
+    console.log('✅ Login success:', data);
+
   } catch (err) {
-    console.error('❌ Error:', err);
+    console.error('❌ Login error:', err);
     setError('Server error. Please try again later.');
   }
 };
-
 
   return (
     <>

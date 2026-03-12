@@ -98,44 +98,156 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // JWT-based authentication (replaces session)
 // Token is sent in Authorization header or stored in httpOnly cookie
 
-// Login route (for example)
-app.post("/api/login", async (req, res) => {
+app.post("/api/auth/login", async (req, res) => {
+  console.log("🚀 /api/auth/login hit", req.body); // <-- new log
   const { email, password } = req.body;
 
-  try {
-    const sql = "SELECT * FROM passengers WHERE Email = ?";
-    const [result] = await pool.query(sql, [email]);
+  if (!email || !password)
+    return res.status(400).json({ success: false, message: "Please fill in all fields" });
 
-    if (result.length > 0) {
-      const passenger = result[0];
-      const isMatch = await bcrypt.compare(password, passenger.Password);
-      
-      if (isMatch) {
-        const token = generateToken({ 
-          id: passenger.PassengerID, 
-          email: passenger.Email, 
-          role: 'passenger' 
-        });
-        
-        res.cookie('token', token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-        });
-        
-        res.json({ success: true, token, user: result[0] });
-      } else {
-        res.status(401).json({ success: false, message: "Invalid credentials" });
-      }
-    } else {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
+  try {
+
+    // -------------------------
+    // ADMIN LOGIN
+    // -------------------------
+   const [admins] = await pool.query(
+  "SELECT * FROM users WHERE Email = ?",
+  [email]
+);
+
+if (admins.length > 0) {
+  const admin = admins[0];
+
+  // Direct comparison (no bcrypt)
+  if (password !== admin.Password) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Invalid credentials" });
+  }
+
+  // Login successful
+  return res.json({
+    success: true,
+    role: "admin",
+    user: { id: admin.ID, email: admin.Email }
+  });
+}
+    // -------------------------
+    // DRIVER LOGIN
+    // -------------------------
+    const [drivers] = await pool.query("SELECT * FROM drivers WHERE Email = ?", [email]);
+    if (drivers.length > 0) {
+      const driver = drivers[0];
+      const passwordMatch = await bcrypt.compare(password, driver.Password);
+
+      if (!passwordMatch)
+        return res.status(401).json({ success: false, message: "Invalid password" });
+
+      const token = generateToken({
+        id: driver.DriverID,
+        email: driver.Email,
+        firstName: driver.FirstName,
+        lastName: driver.LastName,
+        role: "driver"
+      });
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      });
+
+      return res.json({
+        success: true,
+        role: "driver",
+        token,
+        user: {
+          DriverID: driver.DriverID,
+          FirstName: driver.FirstName,
+          LastName: driver.LastName,
+          Email: driver.Email,
+          PhoneNumber: driver.PhoneNumber,
+          ProfilePicture: driver.ProfilePicture,
+          VehicleBrand: driver.VehicleBrand,
+          VehicleType: driver.VehicleType,
+          PlateNumber: driver.PlateNumber,
+          Status: driver.Status
+        }
+      });
     }
+
+    // -------------------------
+    // PASSENGER LOGIN
+    // -------------------------
+  const [passengers] = await pool.query("SELECT * FROM passengers WHERE Email = ?", [email]);
+
+    if (passengers.length === 0) {
+      console.log("❌ Passenger not found:", email);
+      return res.status(404).json({ success: false, message: "Account not found" });
+    }
+
+    const passenger = passengers[0];
+    console.log("🔑 Passenger found:", passenger.Email, "DB hash:", passenger.Password);
+
+    console.log("User typed password:", password);
+    console.log("Password from DB:", passenger.Password);
+    // Compare plaintext password to hashed password
+    const passwordMatch = await bcrypt.compare(password, passenger.Password);
+    console.log("🔍 Password match result:", passwordMatch);
+
+    if (!passwordMatch) {
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+
+    // Generate token
+    const token = generateToken({
+      id: passenger.PassengerID,
+      email: passenger.Email,
+      firstName: passenger.FirstName,
+      lastName: passenger.LastName,
+      role: "passenger"
+    });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    console.log("✅ Passenger login successful:", passenger.Email);
+
+    return res.json({
+      success: true,
+      role: "passenger",
+      token,
+      user: {
+        PassengerID: passenger.PassengerID,
+        firstName: passenger.FirstName,
+        lastName: passenger.LastName,
+        email: passenger.Email,
+        phoneNumber: passenger.PhoneNumber || "",
+        profilePicture: passenger.ProfilePicture || ""
+      }
+    });
+
+
+    // -------------------------
+    // ACCOUNT NOT FOUND
+    // -------------------------
+    return res.status(404).json({ success: false, message: "Account not found" });
+
   } catch (err) {
-    console.error('❌ Login error:', err);
-    res.status(500).json({ error: "Database error" });
+    console.error("❌ Database error:", err);
+    return res.status(500).json({ success: false, message: "Database error" });
   }
 });
+
+app.get("/api/auth/login", (req, res) => {
+  res.send("✅ Backend API is running!");
+});
+
 
 // Check login status (JWT version)
 app.get("/api/check-auth", (req, res) => {
@@ -447,7 +559,43 @@ app.get("/api/driver/signup", (req, res) => {
   res.send("✅ You reached the Driver SignUp route! Use POST to submit data.");
 }); */
 
+app.post("/admin/login", async (req, res) => {
+  const { email, password } = req.body;
 
+  if (!email || !password)
+    return res.status(400).json({ success: false, message: "Missing email or password" });
+
+  try {
+    // Use the same pool as driver login
+    const query = "SELECT * FROM users WHERE Email = ?";
+    const [results] = await pool.query(query, [email]);
+
+    if (results.length === 0)
+      return res.status(401).json({ success: false, message: "Admin not found" });
+
+    const admin = results[0];
+
+    // If you are storing plaintext passwords for school project
+    if (admin.Password !== password)
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
+
+    // ✅ Return admin data (no JWT for school project)
+    res.json({
+      success: true,
+      user: {
+        id: admin.ID,        // your primary key field
+        email: admin.Email
+      }
+    });
+  } catch (err) {
+    console.error("Database error:", err);
+    return res.status(500).json({ success: false, message: "Database error" });
+  }
+});
+
+app.get("/admin/login", (req, res) => {
+  res.send("✅ You reached the Driver SignUp route! Use POST to submit data.");
+});
 
 app.post("/api/driver/login", async (req, res) => {
   const { email, password } = req.body;
