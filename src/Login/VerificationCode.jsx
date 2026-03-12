@@ -6,6 +6,8 @@ function VerificationCode({ email, userType, onVerificationSuccess, onResendCode
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [resendTimer, setResendTimer] = useState(60);
+    const [expirationTimer, setExpirationTimer] = useState(300); // 5 minutes
+    const [expired, setExpired] = useState(false);
     const inputRefs = useRef([]);
 
     // Focus first input only on initial mount
@@ -22,6 +24,24 @@ function VerificationCode({ email, userType, onVerificationSuccess, onResendCode
             return () => clearTimeout(timer);
         }
     }, [resendTimer]);
+
+    // Expiration countdown (3 minutes)
+    useEffect(() => {
+        if (expired) return;
+        if (expirationTimer > 0) {
+            const timer = setTimeout(() => setExpirationTimer(prev => prev - 1), 1000);
+            return () => clearTimeout(timer);
+        } else {
+            setExpired(true);
+            setError('Verification code is expired');
+        }
+    }, [expirationTimer, expired]);
+
+    const formatExpirationTime = () => {
+        const minutes = Math.floor(expirationTimer / 60);
+        const seconds = expirationTimer % 60;
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    };
 
     const handleChange = (index, value) => {
         // Remove non-numeric characters
@@ -142,6 +162,11 @@ function VerificationCode({ email, userType, onVerificationSuccess, onResendCode
     };
 
     const handleVerify = async (codeString = null) => {
+        if (expired) {
+            setError('Verification code is expired');
+            return;
+        }
+
         const verificationCode = codeString || code.join('');
 
         if (verificationCode.length !== 6) {
@@ -167,10 +192,24 @@ function VerificationCode({ email, userType, onVerificationSuccess, onResendCode
             const data = await response.json();
 
             if (!response.ok) {
-                setError(data.message || 'Invalid verification code');
-                setCode(['', '', '', '', '', '']);
-                if (inputRefs.current[0]) {
-                    inputRefs.current[0].focus();
+                if (data.resent) {
+                    // Auto-resent due to 5 failed attempts
+                    setError(data.message);
+                    setCode(['', '', '', '', '', '']);
+                    setExpirationTimer(300);
+                    setExpired(false);
+                    setResendTimer(60);
+                    if (inputRefs.current[0]) inputRefs.current[0].focus();
+                } else if (data.expired) {
+                    setExpired(true);
+                    setExpirationTimer(0);
+                    setError('Verification code is expired');
+                } else {
+                    setError(data.message || 'Invalid verification code');
+                    setCode(['', '', '', '', '', '']);
+                    if (inputRefs.current[0]) {
+                        inputRefs.current[0].focus();
+                    }
                 }
                 return;
             }
@@ -190,7 +229,7 @@ function VerificationCode({ email, userType, onVerificationSuccess, onResendCode
     };
 
     const handleResend = async () => {
-        if (resendTimer > 0) return;
+        if (resendTimer > 0 && !expired) return;
 
         setLoading(true);
         setError('');
@@ -198,7 +237,9 @@ function VerificationCode({ email, userType, onVerificationSuccess, onResendCode
 
         try {
             await onResendCode();
-            setResendTimer(60); // Reset timer
+            setResendTimer(60);
+            setExpirationTimer(300);
+            setExpired(false);
             if (inputRefs.current[0]) {
                 inputRefs.current[0].focus();
             }
@@ -223,7 +264,13 @@ function VerificationCode({ email, userType, onVerificationSuccess, onResendCode
                     We sent a 6-digit code to <strong>{email}</strong>
                 </p>
 
-                {error && <div className="verification-error">{error}</div>}
+                {false && !expired && (
+                    <div className={`code-timer${expirationTimer <= 30 ? ' code-timer--urgent' : ''}`}>
+                        Code expires in {formatExpirationTime()}
+                    </div>
+                )}
+
+                {error && <div className={`verification-error${expired ? ' verification-expired' : ''}`}>{error}</div>}
 
                 <form className="verification-form" onSubmit={(e) => { e.preventDefault(); handleVerify(); }}>
                     <div className="code-inputs" onPaste={handlePaste}>
@@ -244,8 +291,8 @@ function VerificationCode({ email, userType, onVerificationSuccess, onResendCode
                                         e.target.select();
                                     }
                                 }}
-                                className="code-input"
-                                disabled={loading}
+                                className={`code-input${expired ? ' code-input--expired' : ''}`}
+                                disabled={loading || expired}
                                 autoComplete="one-time-code"
                                 aria-label={`Digit ${index + 1}`}
                             />
@@ -255,7 +302,7 @@ function VerificationCode({ email, userType, onVerificationSuccess, onResendCode
                     <button
                         type="submit"
                         className="verify-button"
-                        disabled={loading || code.some(digit => digit === '')}
+                        disabled={loading || code.some(digit => digit === '') || expired}
                     >
                         {loading ? 'Verifying...' : 'Verify'}
                     </button>
@@ -263,7 +310,7 @@ function VerificationCode({ email, userType, onVerificationSuccess, onResendCode
 
                 <div className="resend-section">
                     <p>Didn't receive the code?</p>
-                    {resendTimer > 0 ? (
+                    {(resendTimer > 0 && !expired) ? (
                         <p className="resend-timer">Resend in {resendTimer}s</p>
                     ) : (
                         <button

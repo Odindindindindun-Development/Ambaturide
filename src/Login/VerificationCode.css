@@ -196,6 +196,53 @@
     }
 }
 
+/* Expiration timer */
+.code-timer {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+    margin-bottom: 16px;
+    padding: 6px 14px;
+    background: #f3f4f6;
+    border-radius: 20px;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.code-timer--urgent {
+    color: #dc2626;
+    background: #fef2f2;
+    font-weight: 700;
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* Expired error styling */
+.verification-expired {
+    background-color: #fff7ed;
+    border-color: #fed7aa;
+    color: #c2410c;
+}
+
+/* Expired input styling */
+.code-input--expired {
+    border-color: #fca5a5 !important;
+    background-color: #fef2f2 !important;
+    color: #9ca3af !important;
+    cursor: not-allowed;
+}
+
 /* Animation */
 @keyframes fadeIn {
     from {

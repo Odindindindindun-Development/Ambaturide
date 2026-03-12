@@ -232,7 +232,7 @@ app.post('/api/passenger/login', async (req, res) => {
 
     // Generate 6-digit verification code
     const verificationCode = generateVerificationCode();
-    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+    const expiresAt = Date.now() + 3 * 60 * 1000; // 3 minutes
 
     // Store verification code with passenger data
     verificationCodes.set(email, {
@@ -246,7 +246,8 @@ app.post('/api/passenger/login', async (req, res) => {
         ProfilePicture: passenger.ProfilePicture || "",
       },
       userType: 'passenger',
-      expiresAt
+      expiresAt,
+      attempts: 0
     });
 
     // Send verification email
@@ -286,11 +287,33 @@ app.post('/api/passenger/verify-code', async (req, res) => {
   // Check if code expired
   if (Date.now() > storedData.expiresAt) {
     verificationCodes.delete(email);
-    return res.status(400).json({ message: 'Verification code expired. Please login again.' });
+    return res.status(400).json({ message: 'Verification code is expired', expired: true });
   }
 
   // Verify code
   if (storedData.code !== code) {
+    storedData.attempts = (storedData.attempts || 0) + 1;
+
+    if (storedData.attempts >= 5) {
+      // Auto-resend a new code after 5 failed attempts
+      const newCode = generateVerificationCode();
+      const newExpiresAt = Date.now() + 3 * 60 * 1000;
+      storedData.code = newCode;
+      storedData.expiresAt = newExpiresAt;
+      storedData.attempts = 0;
+      verificationCodes.set(email, storedData);
+
+      const userData = storedData.userData;
+      await sendVerificationEmail(email, newCode, `${userData.FirstName} ${userData.LastName}`);
+      console.log(`🔁 New code auto-sent to ${email} after 5 failed attempts`);
+
+      return res.status(400).json({
+        message: 'Too many incorrect attempts. A new verification code has been sent to your email.',
+        resent: true
+      });
+    }
+
+    verificationCodes.set(email, storedData);
     return res.status(400).json({ message: 'Invalid verification code' });
   }
 
@@ -338,18 +361,17 @@ app.post('/api/passenger/resend-code', async (req, res) => {
 
   // Generate new code
   const newCode = generateVerificationCode();
-  const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+  const expiresAt = Date.now() + 3 * 60 * 1000; // 3 minutes
 
   // Update stored data
   storedData.code = newCode;
   storedData.expiresAt = expiresAt;
+  storedData.attempts = 0;
   verificationCodes.set(email, storedData);
 
   // Send new email
   const userData = storedData.userData;
-  const userName = storedData.userType === 'passenger'
-    ? `${userData.FirstName} ${userData.LastName}`
-    : `${userData.FirstName} ${userData.LastName}`;
+  const userName = `${userData.FirstName} ${userData.LastName}`;
 
   await sendVerificationEmail(email, newCode, userName);
 
@@ -571,7 +593,7 @@ app.post("/api/driver/login", async (req, res) => {
 
     // Generate 6-digit verification code
     const verificationCode = generateVerificationCode();
-    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+    const expiresAt = Date.now() + 3 * 60 * 1000; // 3 minutes
 
     // Store verification code with driver data
     verificationCodes.set(email, {
@@ -589,7 +611,8 @@ app.post("/api/driver/login", async (req, res) => {
         Status: driver.Status
       },
       userType: 'driver',
-      expiresAt
+      expiresAt,
+      attempts: 0
     });
 
     // Send verification email
@@ -629,11 +652,33 @@ app.post('/api/driver/verify-code', async (req, res) => {
   // Check if code expired
   if (Date.now() > storedData.expiresAt) {
     verificationCodes.delete(email);
-    return res.status(400).json({ message: 'Verification code expired. Please login again.' });
+    return res.status(400).json({ message: 'Verification code is expired', expired: true });
   }
 
   // Verify code
   if (storedData.code !== code) {
+    storedData.attempts = (storedData.attempts || 0) + 1;
+
+    if (storedData.attempts >= 5) {
+      // Auto-resend a new code after 5 failed attempts
+      const newCode = generateVerificationCode();
+      const newExpiresAt = Date.now() + 3 * 60 * 1000;
+      storedData.code = newCode;
+      storedData.expiresAt = newExpiresAt;
+      storedData.attempts = 0;
+      verificationCodes.set(email, storedData);
+
+      const userData = storedData.userData;
+      await sendVerificationEmail(email, newCode, `${userData.FirstName} ${userData.LastName}`);
+      console.log(`🔁 New code auto-sent to ${email} after 5 failed attempts`);
+
+      return res.status(400).json({
+        message: 'Too many incorrect attempts. A new verification code has been sent to your email.',
+        resent: true
+      });
+    }
+
+    verificationCodes.set(email, storedData);
     return res.status(400).json({ message: 'Invalid verification code' });
   }
 
@@ -681,11 +726,12 @@ app.post('/api/driver/resend-code', async (req, res) => {
 
   // Generate new code
   const newCode = generateVerificationCode();
-  const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+  const expiresAt = Date.now() + 3 * 60 * 1000; // 3 minutes
 
   // Update stored data
   storedData.code = newCode;
   storedData.expiresAt = expiresAt;
+  storedData.attempts = 0;
   verificationCodes.set(email, storedData);
 
   // Send new email
@@ -1284,6 +1330,66 @@ app.post("/api/driver/bookings/:id/decline", async (req, res) => {
     console.error("DB error recording decline:", err);
     return res.status(500).json({ success: false, message: "Database error" });
   }
+});
+
+// Admin: login
+app.post("/api/admin/login", async (req, res) => {
+  const { email, password } = req.body || {};
+
+  if (!email || !password) {
+    return res.status(400).json({ success: false, message: "Email and password are required" });
+  }
+
+  try {
+    const [rows] = await pool.query("SELECT * FROM admins WHERE Email = ?", [email]);
+    if (!rows || rows.length === 0) {
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+
+    const admin = rows[0];
+    const isMatch = await bcrypt.compare(password, admin.Password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+
+    // Update last login timestamp
+    await pool.query("UPDATE admins SET LastLogin = NOW() WHERE AdminID = ?", [admin.AdminID]);
+
+    const token = generateToken({
+      id: admin.AdminID,
+      email: admin.Email,
+      role: 'admin',
+      adminRole: admin.Role
+    });
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 8 * 60 * 60 * 1000 // 8 hours
+    });
+
+    return res.json({
+      success: true,
+      token,
+      admin: {
+        AdminID: admin.AdminID,
+        FirstName: admin.FirstName,
+        LastName: admin.LastName,
+        Email: admin.Email,
+        Role: admin.Role
+      }
+    });
+  } catch (err) {
+    console.error('❌ Admin login error:', err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// Admin: logout
+app.post("/api/admin/logout", (req, res) => {
+  res.clearCookie('token');
+  return res.json({ success: true, message: "Logged out" });
 });
 
 // Admin: list drivers by status
